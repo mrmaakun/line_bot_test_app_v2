@@ -1,16 +1,25 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
 
-func DefaultPathHandler(http.ResponseWriter, *http.Request) {
+func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("This is the Default Path Handler")
 	log.Println("Entered the default Path Handler")
+
+	//Convert io.ReadCloser to String
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
+	requestString := buf.String()
+
+	log.Println("Request Body: \n" + requestString)
 
 }
 
