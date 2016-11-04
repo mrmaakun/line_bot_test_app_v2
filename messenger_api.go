@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -21,6 +22,16 @@ type Message struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
 	Text string `json:"text"`
+}
+
+type Reply struct {
+	SendReplyToken string
+	Messages       []ReplyMessage
+}
+
+type ReplyMessage struct {
+	Type string
+	Text string
 }
 
 // Function to handle all message events
@@ -45,6 +56,29 @@ func ProcessMessageEvent(e Event) {
 	case "text":
 		log.Println("This is a text message")
 		log.Println("The message sent was: " + m.Text)
+
+		// Make Reply API Request
+		url := "https://api.line-beta.me/v2/bot/message/reply"
+
+		//Make reply message
+
+		replyMessage := ReplyMessage{
+			Type: "text",
+			Text: m.Text,
+		}
+
+		reply := Reply{
+			SendReplyToken: e.ReplyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err := json.Marshal(reply)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("CHANNEL_ACCESS_TOKEN"))
+		req.Header.Set("Content-Type", "application/json")
+		if err != nil {
+			panic(err)
+		}
+
 	default:
 		log.Println("Invalid Message Type")
 	}
