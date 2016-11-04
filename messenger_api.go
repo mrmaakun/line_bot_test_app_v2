@@ -1,12 +1,19 @@
 package main
 
 import (
-	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 )
+
+type Event struct {
+	ReplyToken string          `json:"replyToken"`
+	Type       string          `json:"type"`
+	Timestamp  int64           `json:"timestamp"`
+	Source     json.RawMessage `json:"source"`
+}
 
 func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -15,11 +22,29 @@ func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Convert io.ReadCloser to String
 
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(r.Body)
-	requestString := buf.String()
+	//	buf := new(bytes.Buffer)
+	//	buf.ReadFrom(r.Body)
+	//	requestString := buf.String()
 
-	log.Println("Request Body: \n" + requestString)
+	//	log.Println("Request Body: \n" + requestString)
+
+	decoder := json.NewDecoder(r.Body)
+
+	request := &struct {
+		Events []*Event `json:"events"`
+	}{}
+
+	err := decoder.Decode(&request)
+
+	if err != nil {
+		panic(err)
+	}
+
+	for _, event := range request.Events {
+		log.Println("replytoken: " + event.ReplyToken)
+		log.Println("type: " + event.Type)
+		log.Println("timestamp: ", event.Timestamp)
+	}
 
 }
 
