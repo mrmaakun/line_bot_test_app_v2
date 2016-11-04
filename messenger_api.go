@@ -13,6 +13,41 @@ type Event struct {
 	Type       string          `json:"type"`
 	Timestamp  int64           `json:"timestamp"`
 	Source     json.RawMessage `json:"source"`
+	Message    json.RawMessage `json:"message"`
+	Postback   json.RawMessage `json:"postback"`
+}
+
+type Message struct {
+	Id   string `json:"id"`
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+// Function to handle all message events
+func ProcessMessageEvent(e Event) {
+
+	var m Message
+
+	log.Println("Entered ProcessMessageEvent")
+
+	err := json.Unmarshal(e.Message, &m)
+
+	log.Println("Finished Unmarshall")
+
+	if err != nil {
+		log.Fatalln("error unmarshalling message: ", err)
+	}
+
+	log.Println("Type: " + m.Type)
+	log.Println("ID: " + m.Id)
+
+	switch m.Type {
+	case "text":
+		log.Println("This is a text message")
+	default:
+		log.Println("Invalid Message Type")
+	}
+
 }
 
 func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,6 +79,12 @@ func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("replytoken: " + event.ReplyToken)
 		log.Println("type: " + event.Type)
 		log.Println("timestamp: ", event.Timestamp)
+
+		switch event.Type {
+		case "message":
+			ProcessMessageEvent(*event)
+		default:
+		}
 	}
 
 }
