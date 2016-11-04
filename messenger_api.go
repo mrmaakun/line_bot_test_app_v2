@@ -44,6 +44,7 @@ func ProcessMessageEvent(e Event) {
 	switch m.Type {
 	case "text":
 		log.Println("This is a text message")
+		log.Println("The message sent was: " + m.Text)
 	default:
 		log.Println("Invalid Message Type")
 	}
