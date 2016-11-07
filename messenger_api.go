@@ -20,9 +20,11 @@ type Event struct {
 }
 
 type Message struct {
-	Id   string `json:"id"`
-	Type string `json:"type"`
-	Text string `json:"text"`
+	Id        string `json:"id"`
+	Type      string `json:"type"`
+	Text      string `json:"text"`
+	PackageId string `json:"packageId"`
+	StickerId string `json:"stickerId"`
 }
 
 type Reply struct {
@@ -35,9 +37,11 @@ type ReplyMessage struct {
 	Text               string `json:"text"`
 	OriginalContentUrl string `json:"originalContentUrl"`
 	PreviewImageUrl    string `json:"previewImageUrl"`
+	PackageId          string `json:"packageId"`
+	StickerId          string `json:"stickerId"`
 }
 
-func SendReplyMessage(messageType string, replyToken string, message string) {
+func SendReplyMessage(replyToken string, m Message) {
 
 	// Make Reply API Request
 	url := "https://api.line-beta.me/v2/bot/message/reply"
@@ -45,13 +49,13 @@ func SendReplyMessage(messageType string, replyToken string, message string) {
 	var jsonPayload []byte = nil
 	var err error
 
-	switch messageType {
+	switch m.Type {
 
 	case "text":
 
 		replyMessage := ReplyMessage{
-			Text: message,
-			Type: messageType,
+			Text: m.Text,
+			Type: m.Type,
 		}
 
 		reply := Reply{
@@ -63,9 +67,23 @@ func SendReplyMessage(messageType string, replyToken string, message string) {
 	case "image":
 
 		replyMessage := ReplyMessage{
-			Type:               messageType,
-			OriginalContentUrl: "https://api.line.me/v2/bot/message/" + message + "/content",
-			PreviewImageUrl:    "https://api.line.me/v2/bot/message/" + message + "/content",
+			Type:               m.Type,
+			OriginalContentUrl: "https://api.line.me/v2/bot/message/" + m.Id + "/content",
+			PreviewImageUrl:    "https://api.line.me/v2/bot/message/" + m.Id + "/content",
+		}
+
+		reply := Reply{
+			SendReplyToken: replyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err = json.Marshal(reply)
+
+	case "sticker":
+
+		replyMessage := ReplyMessage{
+			Type:      m.Type,
+			PackageId: m.PackageId,
+			StickerId: m.StickerId,
 		}
 
 		reply := Reply{
@@ -114,26 +132,7 @@ func ProcessMessageEvent(e Event) {
 		log.Fatalln("error unmarshalling message: ", err)
 	}
 
-	log.Println("Type: " + m.Type)
-	log.Println("ID: " + m.Id)
-
-	switch m.Type {
-	case "text":
-		log.Println("This is a text message")
-		log.Println("The message sent was: " + m.Text)
-
-		SendReplyMessage(m.Type, e.ReplyToken, m.Text)
-
-	case "image":
-		log.Println("This is a image message")
-		log.Println("The message ID was: " + m.Id)
-
-		// Pass message Id in for image messages
-		SendReplyMessage(m.Type, e.ReplyToken, m.Id)
-
-	default:
-		log.Println("Invalid Message Type")
-	}
+	SendReplyMessage(e.ReplyToken, m)
 
 }
 
