@@ -31,27 +31,53 @@ type Reply struct {
 }
 
 type ReplyMessage struct {
-	Type string `json:"type"`
-	Text string `json:"text"`
+	Type               string `json:"type"`
+	Text               string `json:"text"`
+	OriginalContentUrl string `json:"originalContentUrl"`
+	PreviewImageUrl    string `json:"previewImageUrl"`
 }
 
-func SendReplyMessage(replyToken string, message string) {
+func SendReplyMessage(messageType string, replyToken string, message string) {
 
 	// Make Reply API Request
 	url := "https://api.line-beta.me/v2/bot/message/reply"
 
+	var jsonPayload []byte = nil
+	var err error
+
+	switch messageType {
+
+	case "text":
+
+		replyMessage := ReplyMessage{
+			Text: message,
+			Type: messageType,
+		}
+
+		reply := Reply{
+			SendReplyToken: replyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err = json.Marshal(reply)
+
+	case "image":
+
+		replyMessage := ReplyMessage{
+			Type:               messageType,
+			OriginalContentUrl: "https://api.line.me/v2/bot/message/" + message + "/content",
+			PreviewImageUrl:    "https://api.line.me/v2/bot/message/" + message + "/content",
+		}
+
+		reply := Reply{
+			SendReplyToken: replyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err = json.Marshal(reply)
+
+	}
+
 	//Make reply message
 
-	replyMessage := ReplyMessage{
-		Type: "text",
-		Text: message,
-	}
-
-	reply := Reply{
-		SendReplyToken: replyToken,
-		Messages:       []ReplyMessage{replyMessage},
-	}
-	jsonPayload, err := json.Marshal(reply)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 	req.Header.Set("Content-Type", "application/json")
@@ -96,7 +122,14 @@ func ProcessMessageEvent(e Event) {
 		log.Println("This is a text message")
 		log.Println("The message sent was: " + m.Text)
 
-		SendReplyMessage(e.ReplyToken, m.Text)
+		SendReplyMessage(m.Type, e.ReplyToken, m.Text)
+
+	case "image":
+		log.Println("This is a image message")
+		log.Println("The message ID was: " + m.Id)
+
+		// Pass message Id in for image messages
+		SendReplyMessage(m.Type, e.ReplyToken, m.Id)
 
 	default:
 		log.Println("Invalid Message Type")
