@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -25,13 +26,51 @@ type Message struct {
 }
 
 type Reply struct {
-	SendReplyToken string
-	Messages       []ReplyMessage
+	SendReplyToken string         `json:"replyToken"`
+	Messages       []ReplyMessage `json:"messages"`
 }
 
 type ReplyMessage struct {
-	Type string
-	Text string
+	Type string `json:"type"`
+	Text string `json:"text"`
+}
+
+func SendReplyMessage(replyToken string, message string) {
+
+	// Make Reply API Request
+	url := "https://api.line-beta.me/v2/bot/message/reply"
+
+	//Make reply message
+
+	replyMessage := ReplyMessage{
+		Type: "text",
+		Text: message,
+	}
+
+	reply := Reply{
+		SendReplyToken: replyToken,
+		Messages:       []ReplyMessage{replyMessage},
+	}
+	jsonPayload, err := json.Marshal(reply)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	req.Header.Set("Content-Type", "application/json")
+
+	//reqbody, _ := ioutil.ReadAll(req.Body)
+	//log.Println("Reply Message Response Body:", string(reqbody))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+	log.Println("Response Status:", resp.Status)
+	log.Println("Response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println("Response Body:", string(body))
+
 }
 
 // Function to handle all message events
@@ -57,27 +96,7 @@ func ProcessMessageEvent(e Event) {
 		log.Println("This is a text message")
 		log.Println("The message sent was: " + m.Text)
 
-		// Make Reply API Request
-		url := "https://api.line-beta.me/v2/bot/message/reply"
-
-		//Make reply message
-
-		replyMessage := ReplyMessage{
-			Type: "text",
-			Text: m.Text,
-		}
-
-		reply := Reply{
-			SendReplyToken: e.ReplyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err := json.Marshal(reply)
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-		req.Header.Set("Authorization", "Bearer "+os.Getenv("CHANNEL_ACCESS_TOKEN"))
-		req.Header.Set("Content-Type", "application/json")
-		if err != nil {
-			panic(err)
-		}
+		SendReplyMessage(e.ReplyToken, m.Text)
 
 	default:
 		log.Println("Invalid Message Type")
