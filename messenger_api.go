@@ -182,7 +182,7 @@ func SendReplyMessage(replyToken string, m Message) {
 		// TODO: Put this url in config file
 		imagePath := GetContent(m.Type, m.Id)
 		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + imagePath
-		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage(image_url)
+		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage(imagePath)
 
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
