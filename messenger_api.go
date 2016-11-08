@@ -68,7 +68,9 @@ func GetContent(mediaType string, mediaId string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Media ID: " + mediaId)
 	log.Printf("Downloaded %d byte file.\n", numBytesWritten)
+	log.Println("File name: " + imageFileName)
 
 	//return the file name
 	return imageFileName
