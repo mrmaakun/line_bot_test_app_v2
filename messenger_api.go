@@ -181,7 +181,7 @@ func SendReplyMessage(replyToken string, m Message) {
 
 		// TODO: Put this url in config file
 		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + GetContent(m.Type, m.Id)
-		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images" + CreatePreviewImage(image_url)
+		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage(image_url)
 
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
@@ -318,6 +318,8 @@ func registerRouteHandlers() {
 func main() {
 
 	log.Println("V2 Test Bot Started")
+
+	//CreatePreviewImage(GetContent("image", "718468597"))
 
 	registerRouteHandlers()
 
