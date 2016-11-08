@@ -179,8 +179,9 @@ func SendReplyMessage(replyToken string, m Message) {
 
 	case "image":
 
-		image_url := GetContent(m.Type, m.Id)
-		preview_image_url := CreatePreviewImage(image_url)
+		// TODO: Put this url in config file
+		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + GetContent(m.Type, m.Id)
+		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images" + CreatePreviewImage(image_url)
 
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
