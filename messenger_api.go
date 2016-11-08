@@ -143,7 +143,7 @@ func CreatePreviewImage(originalFileName string) string {
 
 	previewImageFileName := "p_" + originalFileName
 
-	previewImageFile, err := os.Create(previewImageFileName)
+	previewImageFile, err := os.Create("images/" + previewImageFileName)
 
 	//Resize image
 	resizedImage := resize.Resize(240, 240, image, resize.Lanczos3)
