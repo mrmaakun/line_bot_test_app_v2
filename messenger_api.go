@@ -141,7 +141,7 @@ func CreatePreviewImage(originalFileName string) string {
 
 	log.Println("Image Read")
 
-	previewImageFileName := "images/p_" + originalFileName
+	previewImageFileName := "p_" + originalFileName
 
 	previewImageFile, err := os.Create(previewImageFileName)
 
