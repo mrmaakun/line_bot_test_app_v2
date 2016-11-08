@@ -4,10 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/nfnt/resize"
+	"image"
+	"image/jpeg"
+	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 type Event struct {
@@ -41,6 +47,66 @@ type ReplyMessage struct {
 	StickerId          string `json:"stickerId"`
 }
 
+// Function for downloading and temporarily storing images, sound, and videos
+// Returns the file name of the stored image
+func GetContent(mediaType string, mediaId string) string {
+
+	client := &http.Client{}
+	rand.Seed((time.Now().UTC().UnixNano()))
+
+	imageFileName := "image_" + string(rand.Intn(10000)) + ".jpg"
+	// Create output file
+	newFile, err := os.Create(imageFileName)
+
+	url := "https://api.line.me/v2/bot/message/" + mediaId + "/content"
+
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	resp, err := client.Do(req)
+
+	numBytesWritten, err := io.Copy(newFile, resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Downloaded %d byte file.\n", numBytesWritten)
+
+	//return the file name
+	return imageFileName
+
+}
+
+// Create a preview image from the original image
+func CreatePreviewImage(originalFileName string) string {
+
+	// Open File
+	file, err := os.Open("images/" + originalFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Read Image
+	image, _, err := image.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	previewImageFileName := "p" + originalFileName
+
+	previewImageFile, err := os.Create(previewImageFileName)
+
+	//Resize image
+	resizedImage := resize.Resize(240, 240, image, resize.Lanczos3)
+
+	var image_reader io.ReadWriter
+
+	jpeg.Encode(image_reader, resizedImage, nil)
+
+	io.Copy(previewImageFile, image_reader)
+
+	return previewImageFileName
+
+}
+
 func SendReplyMessage(replyToken string, m Message) {
 
 	// Make Reply API Request
@@ -66,10 +132,13 @@ func SendReplyMessage(replyToken string, m Message) {
 
 	case "image":
 
+		image_url := GetContent(m.Type, m.Id)
+		preview_image_url := CreatePreviewImage(image_url)
+
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
-			OriginalContentUrl: "https://api.line.me/v2/bot/message/" + m.Id + "/content",
-			PreviewImageUrl:    "https://api.line.me/v2/bot/message/" + m.Id + "/content",
+			OriginalContentUrl: image_url,
+			PreviewImageUrl:    preview_image_url,
 		}
 
 		reply := Reply{
@@ -136,7 +205,7 @@ func ProcessMessageEvent(e Event) {
 
 }
 
-func DefaultPathHandler(w http.ResponseWriter, r *http.Request) {
+func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("This is the Default Path Handler")
 	log.Println("Entered the default Path Handler")
@@ -179,7 +248,9 @@ func registerRouteHandlers() {
 
 	log.Println("Registering Route Handlers")
 
-	http.HandleFunc("/", DefaultPathHandler)
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("images"))))
+
+	http.HandleFunc("/api/", APIPathHandler)
 
 	var endpoint_port string
 	// If port is set an the environment variables, use that
