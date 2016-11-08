@@ -48,18 +48,64 @@ type ReplyMessage struct {
 	StickerId          string `json:"stickerId"`
 }
 
+// This function checks to see if the number of files in the images directory is less than the max number.
+// If it is, it deletes the oldest image
+
+func CleanImageDirectory() {
+
+	//Get a slice of files in the images directory
+	files, _ := ioutil.ReadDir("images")
+
+	numberOfStoredImages := len(files)
+
+	// TODO: Change the max number of stored images to a config item
+	if numberOfStoredImages > 30 {
+
+		var earliestModifiedTime time.Time
+		var earliestModifiedFileName string
+
+		for _, f := range files {
+
+			// If this is the first element, set it as the earliest one
+			if earliestModifiedFileName == "" {
+
+				earliestModifiedTime = f.ModTime()
+				earliestModifiedFileName = f.Name()
+				continue
+			}
+
+			if earliestModifiedTime.Before(f.ModTime()) {
+
+				earliestModifiedTime = f.ModTime()
+				earliestModifiedFileName = f.Name()
+			}
+		}
+
+		err := os.Remove(earliestModifiedFileName)
+		if err != nil {
+			log.Fatal(err)
+
+		}
+
+	}
+
+}
+
 // Function for downloading and temporarily storing images, sound, and videos
 // Returns the file name of the stored image
 func GetContent(mediaType string, mediaId string) string {
+
+	// Clean the image directory before getting content
+	CleanImageDirectory()
 
 	client := &http.Client{}
 	rand.Seed((time.Now().UTC().UnixNano()))
 
 	imageFileName := "image_" + strconv.Itoa(rand.Intn(10000)) + ".jpg"
 	// Create output file
-	newFile, err := os.Create(imageFileName)
+	newFile, err := os.Create("images/" + imageFileName)
 
-	url := "https://api.line.me/v2/bot/message/" + mediaId + "/content"
+	url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
 
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -93,18 +139,16 @@ func CreatePreviewImage(originalFileName string) string {
 		log.Fatal(err)
 	}
 
-	previewImageFileName := "p" + originalFileName
+	log.Println("Image Read")
+
+	previewImageFileName := "images/p_" + originalFileName
 
 	previewImageFile, err := os.Create(previewImageFileName)
 
 	//Resize image
 	resizedImage := resize.Resize(240, 240, image, resize.Lanczos3)
 
-	var image_reader io.ReadWriter
-
-	jpeg.Encode(image_reader, resizedImage, nil)
-
-	io.Copy(previewImageFile, image_reader)
+	jpeg.Encode(previewImageFile, resizedImage, nil)
 
 	return previewImageFileName
 
@@ -273,7 +317,10 @@ func registerRouteHandlers() {
 func main() {
 
 	log.Println("V2 Test Bot Started")
-	registerRouteHandlers()
+	//registerRouteHandlers()
+
+	log.Println("Preview Image" + CreatePreviewImage(GetContent("image", "718447373")))
+
 	log.Println("Registered Route Handlers")
 
 }
