@@ -317,9 +317,8 @@ func registerRouteHandlers() {
 func main() {
 
 	log.Println("V2 Test Bot Started")
-	//registerRouteHandlers()
 
-	log.Println("Preview Image" + CreatePreviewImage(GetContent("image", "718447373")))
+	registerRouteHandlers()
 
 	log.Println("Registered Route Handlers")
 
