@@ -13,6 +13,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -54,7 +55,7 @@ func GetContent(mediaType string, mediaId string) string {
 	client := &http.Client{}
 	rand.Seed((time.Now().UTC().UnixNano()))
 
-	imageFileName := "image_" + string(rand.Intn(10000)) + ".jpg"
+	imageFileName := "image_" + strconv.Itoa(rand.Intn(10000)) + ".jpg"
 	// Create output file
 	newFile, err := os.Create(imageFileName)
 
