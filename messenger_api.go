@@ -375,7 +375,7 @@ func ProcessFollowEvent(e Event) {
 	}
 
 	replyMessage3 := ReplyMessage{
-		Type:      "stamp",
+		Type:      "sticker",
 		StickerId: "144",
 		PackageId: "2",
 	}
@@ -400,7 +400,7 @@ func ProcessJoinEvent(e Event) {
 	}
 
 	replyMessage3 := ReplyMessage{
-		Type:      "stamp",
+		Type:      "sticker",
 		StickerId: "144",
 		PackageId: "2",
 	}
