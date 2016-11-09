@@ -46,6 +46,7 @@ type ReplyMessage struct {
 	PreviewImageUrl    string `json:"previewImageUrl"`
 	PackageId          string `json:"packageId"`
 	StickerId          string `json:"stickerId"`
+	Duration           string `json:"duration"`
 }
 
 // This function checks to see if the number of files in the images directory is less than the max number.
@@ -95,20 +96,19 @@ func CleanImageDirectory() {
 // Returns the file name of the stored image
 func GetContent(mediaType string, mediaId string) string {
 
+	client := &http.Client{}
+	rand.Seed((time.Now().UTC().UnixNano()))
+	url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
+
 	switch mediaType {
 
 	case "image":
 		// Clean the image directory before getting content
 		CleanImageDirectory()
 
-		client := &http.Client{}
-		rand.Seed((time.Now().UTC().UnixNano()))
-
 		imageFileName := "image_" + strconv.Itoa(rand.Intn(10000)) + ".jpg"
 		// Create output file
 		newFile, err := os.Create("images/" + imageFileName)
-
-		url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
 
 		req, err := http.NewRequest("GET", url, nil)
 		req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -129,13 +129,8 @@ func GetContent(mediaType string, mediaId string) string {
 
 		CleanImageDirectory()
 
-		client := &http.Client{}
-		rand.Seed((time.Now().UTC().UnixNano()))
-
 		videoFileName := "video_" + strconv.Itoa(rand.Intn(10000)) + ".mp4"
 		newFile, err := os.Create("images/" + videoFileName)
-
-		url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
 
 		req, err := http.NewRequest("GET", url, nil)
 		req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -150,6 +145,27 @@ func GetContent(mediaType string, mediaId string) string {
 		log.Println("File name: " + videoFileName)
 
 		return videoFileName
+
+	case "audio":
+
+		CleanImageDirectory()
+
+		audioFileName := "audio_" + strconv.Itoa(rand.Intn(10000)) + ".m4a"
+		newFile, err := os.Create("images/" + audioFileName)
+
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+		resp, err := client.Do(req)
+
+		numBytesWritten, err := io.Copy(newFile, resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Media ID: " + mediaId)
+		log.Printf("Downloaded %d byte file.\n", numBytesWritten)
+		log.Println("File name: " + audioFileName)
+
+		return audioFileName
 
 	default:
 
@@ -236,14 +252,32 @@ func SendReplyMessage(replyToken string, m Message) {
 	case "video":
 
 		videoPath := GetContent(m.Type, m.Id)
-		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + videoPath
+		video_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + videoPath
 		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/video_thumbnail.jpg"
 
 		replyMessage := ReplyMessage{
 
 			Type:               m.Type,
-			OriginalContentUrl: image_url,
+			OriginalContentUrl: video_url,
 			PreviewImageUrl:    preview_image_url,
+		}
+
+		reply := Reply{
+			SendReplyToken: replyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err = json.Marshal(reply)
+
+	case "audio":
+
+		audioPath := GetContent(m.Type, m.Id)
+		audio_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + audioPath
+
+		replyMessage := ReplyMessage{
+
+			Type:               m.Type,
+			OriginalContentUrl: audio_url,
+			Duration:           "240000",
 		}
 
 		reply := Reply{
