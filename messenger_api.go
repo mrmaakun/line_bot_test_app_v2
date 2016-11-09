@@ -24,6 +24,13 @@ type Source struct {
 	RoomId  string `json:"roomId"`
 }
 
+type Profile struct {
+	DisplayName   string `json:"displayName"`
+	UserId        string `json:"userId"`
+	PictureUrl    string `json:"pictureUrl"`
+	StatusMessage string `json:"statusMessage"`
+}
+
 type Event struct {
 	ReplyToken string          `json:"replyToken"`
 	Type       string          `json:"type"`
@@ -96,6 +103,34 @@ func CleanImageDirectory() {
 		}
 
 	}
+
+}
+
+func GetProfile(userId string) Profile {
+
+	client := &http.Client{}
+
+	url := "https://api.line.me/v2/bot/profile/" + userId
+
+	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	resp, err := client.Do(req)
+
+	if err != nil {
+		panic(err)
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+
+	var userProfile Profile
+
+	err = decoder.Decode(&userProfile)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return userProfile
 
 }
 
@@ -315,6 +350,9 @@ func ReplyToMessage(replyToken string, m Message) {
 			StickerId: m.StickerId,
 		}
 
+		log.Println("PackageId: " + m.PackageId)
+		log.Println("Stickerid: " + m.StickerId)
+
 		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	}
@@ -326,26 +364,46 @@ func ProcessFollowEvent(e Event) {
 
 	log.Println("Processing Follow Event")
 
-	replyMessage := ReplyMessage{
-		Text: "Thank you for following me!",
+	replyMessage1 := ReplyMessage{
+		Text: "Hi, " + GetProfile(e.Source.UserId).DisplayName + "!!",
 		Type: "text",
 	}
 
-	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage})
+	replyMessage2 := ReplyMessage{
+		Text: "Thank you for being my friend!",
+		Type: "text",
+	}
+
+	replyMessage3 := ReplyMessage{
+		Text: "You're awesome!",
+		Type: "text",
+	}
+
+	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
 
 }
 
 // Function to handle follow events
 func ProcessJoinEvent(e Event) {
 
-	log.Println("Processing Follow Event")
+	log.Println("Processing Join Event")
 
-	replyMessage := ReplyMessage{
-		Text: "Thank you for joining this group!",
+	replyMessage1 := ReplyMessage{
+		Text: "Hi, " + GetProfile(e.Source.UserId).DisplayName + "!!",
 		Type: "text",
 	}
 
-	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage})
+	replyMessage2 := ReplyMessage{
+		Text: "Thank you for inviting me to this group!",
+		Type: "text",
+	}
+
+	replyMessage3 := ReplyMessage{
+		Text: "You're awesome!",
+		Type: "text",
+	}
+
+	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
 
 }
 
