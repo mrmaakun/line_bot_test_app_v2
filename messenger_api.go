@@ -95,32 +95,69 @@ func CleanImageDirectory() {
 // Returns the file name of the stored image
 func GetContent(mediaType string, mediaId string) string {
 
-	// Clean the image directory before getting content
-	CleanImageDirectory()
+	switch mediaType {
 
-	client := &http.Client{}
-	rand.Seed((time.Now().UTC().UnixNano()))
+	case "image":
+		// Clean the image directory before getting content
+		CleanImageDirectory()
 
-	imageFileName := "image_" + strconv.Itoa(rand.Intn(10000)) + ".jpg"
-	// Create output file
-	newFile, err := os.Create("images/" + imageFileName)
+		client := &http.Client{}
+		rand.Seed((time.Now().UTC().UnixNano()))
 
-	url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
+		imageFileName := "image_" + strconv.Itoa(rand.Intn(10000)) + ".jpg"
+		// Create output file
+		newFile, err := os.Create("images/" + imageFileName)
 
-	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-	resp, err := client.Do(req)
+		url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
 
-	numBytesWritten, err := io.Copy(newFile, resp.Body)
-	if err != nil {
-		log.Fatal(err)
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+		resp, err := client.Do(req)
+
+		numBytesWritten, err := io.Copy(newFile, resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Media ID: " + mediaId)
+		log.Printf("Downloaded %d byte file.\n", numBytesWritten)
+		log.Println("File name: " + imageFileName)
+
+		//return the file name
+		return imageFileName
+
+	case "video":
+
+		CleanImageDirectory()
+
+		client := &http.Client{}
+		rand.Seed((time.Now().UTC().UnixNano()))
+
+		videoFileName := "video_" + strconv.Itoa(rand.Intn(10000)) + ".mp4"
+		newFile, err := os.Create("images/" + videoFileName)
+
+		url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
+
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+		resp, err := client.Do(req)
+
+		numBytesWritten, err := io.Copy(newFile, resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("Media ID: " + mediaId)
+		log.Printf("Downloaded %d byte file.\n", numBytesWritten)
+		log.Println("File name: " + videoFileName)
+
+		return videoFileName
+
+	default:
+
+		log.Println("Unknown media type")
+
+		return ""
+
 	}
-	log.Println("Media ID: " + mediaId)
-	log.Printf("Downloaded %d byte file.\n", numBytesWritten)
-	log.Println("File name: " + imageFileName)
-
-	//return the file name
-	return imageFileName
 
 }
 
@@ -185,6 +222,25 @@ func SendReplyMessage(replyToken string, m Message) {
 		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage(imagePath)
 
 		replyMessage := ReplyMessage{
+			Type:               m.Type,
+			OriginalContentUrl: image_url,
+			PreviewImageUrl:    preview_image_url,
+		}
+
+		reply := Reply{
+			SendReplyToken: replyToken,
+			Messages:       []ReplyMessage{replyMessage},
+		}
+		jsonPayload, err = json.Marshal(reply)
+
+	case "video":
+
+		videoPath := GetContent(m.Type, m.Id)
+		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + videoPath
+		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/video_thumbnail.jpg"
+
+		replyMessage := ReplyMessage{
+
 			Type:               m.Type,
 			OriginalContentUrl: image_url,
 			PreviewImageUrl:    preview_image_url,
@@ -319,8 +375,6 @@ func registerRouteHandlers() {
 func main() {
 
 	log.Println("V2 Test Bot Started")
-
-	//CreatePreviewImage(GetContent("image", "718468597"))
 
 	registerRouteHandlers()
 
