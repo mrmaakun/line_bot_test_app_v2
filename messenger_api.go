@@ -17,11 +17,18 @@ import (
 	"time"
 )
 
+type Source struct {
+	Type    string `json:"type"`
+	UserId  string `json:"userid"`
+	GroupId string `json:"groupId"`
+	RoomId  string `json:"roomId"`
+}
+
 type Event struct {
 	ReplyToken string          `json:"replyToken"`
 	Type       string          `json:"type"`
 	Timestamp  int64           `json:"timestamp"`
-	Source     json.RawMessage `json:"source"`
+	Source     Source          `json:"source"`
 	Message    json.RawMessage `json:"message"`
 	Postback   json.RawMessage `json:"postback"`
 }
@@ -207,13 +214,43 @@ func CreatePreviewImage(originalFileName string) string {
 
 }
 
-func SendReplyMessage(replyToken string, m Message) {
+func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
 
-	// Make Reply API Request
 	url := "https://api.line-beta.me/v2/bot/message/reply"
 
 	var jsonPayload []byte = nil
 	var err error
+
+	reply := Reply{
+		SendReplyToken: replyToken,
+		Messages:       replyMessages,
+	}
+
+	jsonPayload, err = json.Marshal(reply)
+
+	//Make reply message
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+	log.Println("Response Status:", resp.Status)
+	log.Println("Response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println("Response Body:", string(body))
+
+}
+
+func ReplyToMessage(replyToken string, m Message) {
+
+	// Make Reply API Request
 
 	switch m.Type {
 
@@ -224,11 +261,7 @@ func SendReplyMessage(replyToken string, m Message) {
 			Type: m.Type,
 		}
 
-		reply := Reply{
-			SendReplyToken: replyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err = json.Marshal(reply)
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	case "image":
 
@@ -243,11 +276,7 @@ func SendReplyMessage(replyToken string, m Message) {
 			PreviewImageUrl:    preview_image_url,
 		}
 
-		reply := Reply{
-			SendReplyToken: replyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err = json.Marshal(reply)
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	case "video":
 
@@ -262,11 +291,7 @@ func SendReplyMessage(replyToken string, m Message) {
 			PreviewImageUrl:    preview_image_url,
 		}
 
-		reply := Reply{
-			SendReplyToken: replyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err = json.Marshal(reply)
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	case "audio":
 
@@ -280,11 +305,7 @@ func SendReplyMessage(replyToken string, m Message) {
 			Duration:           "240000",
 		}
 
-		reply := Reply{
-			SendReplyToken: replyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err = json.Marshal(reply)
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	case "sticker":
 
@@ -294,34 +315,51 @@ func SendReplyMessage(replyToken string, m Message) {
 			StickerId: m.StickerId,
 		}
 
-		reply := Reply{
-			SendReplyToken: replyToken,
-			Messages:       []ReplyMessage{replyMessage},
-		}
-		jsonPayload, err = json.Marshal(reply)
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 	}
 
-	//Make reply message
+}
 
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
-	req.Header.Set("Content-Type", "application/json")
+// Function to handle follow events
+func ProcessFollowEvent(e Event) {
 
-	//reqbody, _ := ioutil.ReadAll(req.Body)
-	//log.Println("Reply Message Response Body:", string(reqbody))
+	log.Println("Processing Follow Event")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
+	replyMessage := ReplyMessage{
+		Text: "Thank you for following me!",
+		Type: "text",
 	}
 
-	defer resp.Body.Close()
-	log.Println("Response Status:", resp.Status)
-	log.Println("Response Headers:", resp.Header)
-	body, _ := ioutil.ReadAll(resp.Body)
-	log.Println("Response Body:", string(body))
+	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage})
+
+}
+
+// Function to handle follow events
+func ProcessJoinEvent(e Event) {
+
+	log.Println("Processing Follow Event")
+
+	replyMessage := ReplyMessage{
+		Text: "Thank you for joining this group!",
+		Type: "text",
+	}
+
+	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage})
+
+}
+
+// Function to handle follow events
+func ProcessUnfollowEvent(e Event) {
+
+	log.Println("Bot has been unfollowed by user: " + e.Source.UserId)
+
+}
+
+// Function to handle follow events
+func ProcessLeaveEvent(e Event) {
+
+	log.Println("Bot has left group: " + e.Source.GroupId)
 
 }
 
@@ -340,7 +378,7 @@ func ProcessMessageEvent(e Event) {
 		log.Fatalln("error unmarshalling message: ", err)
 	}
 
-	SendReplyMessage(e.ReplyToken, m)
+	ReplyToMessage(e.ReplyToken, m)
 
 }
 
@@ -377,6 +415,8 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 		switch event.Type {
 		case "message":
 			ProcessMessageEvent(*event)
+		case "follow":
+			ProcessFollowEvent(*event)
 		default:
 		}
 	}
