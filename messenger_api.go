@@ -110,7 +110,7 @@ func GetProfile(userId string) Profile {
 
 	client := &http.Client{}
 
-	url := "https://api.line.me/v2/bot/profile/" + userId
+	url := "https://api.line-beta.me/v2/bot/profile/" + userId
 
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
@@ -375,8 +375,9 @@ func ProcessFollowEvent(e Event) {
 	}
 
 	replyMessage3 := ReplyMessage{
-		Text: "You're awesome!",
-		Type: "text",
+		Type:      "stamp",
+		StickerId: "144",
+		PackageId: "2",
 	}
 
 	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
@@ -399,8 +400,9 @@ func ProcessJoinEvent(e Event) {
 	}
 
 	replyMessage3 := ReplyMessage{
-		Text: "You're awesome!",
-		Type: "text",
+		Type:      "stamp",
+		StickerId: "144",
+		PackageId: "2",
 	}
 
 	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
