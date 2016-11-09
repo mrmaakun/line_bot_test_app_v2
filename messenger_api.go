@@ -417,6 +417,12 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 			ProcessMessageEvent(*event)
 		case "follow":
 			ProcessFollowEvent(*event)
+		case "unfollow":
+			ProcessUnfollowEvent(*event)
+		case "join":
+			ProcessJoinEvent(*event)
+		case "leave":
+			ProcessLeaveEvent(*event)
 		default:
 		}
 	}
