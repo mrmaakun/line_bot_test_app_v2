@@ -300,7 +300,7 @@ func SendImageMap(replyToken string) {
 		BaseUrl:  "https://line-bot-test-app-v2.herokuapp.com/images/imagemap",
 		AltText:  "This is an imagemap",
 		BaseSize: ImagemapBaseSize{Height: 636, Width: 1040},
-		Actions:  []ImagemapActions{zone1, zone2},
+		Actions:  []ImagemapActions{zone1},
 	}
 
 	SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
