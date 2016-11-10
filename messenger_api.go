@@ -41,15 +41,15 @@ type Event struct {
 }
 
 type Message struct {
-	Id        string `json:"id"`
-	Type      string `json:"type"`
-	Text      string `json:"text"`
-	PackageId string `json:"packageId"`
-	StickerId string `json:"stickerId"`
-	Title     string `json:"title"`
-	Address   string `json:"address"`
-	Latitude  string `json:"latitude"`
-	Longitude string `json:"longitude"`
+	Id        string  `json:"id"`
+	Type      string  `json:"type"`
+	Text      string  `json:"text"`
+	PackageId string  `json:"packageId"`
+	StickerId string  `json:"stickerId"`
+	Title     string  `json:"title"`
+	Address   string  `json:"address"`
+	Latitude  float32 `json:"latitude"`
+	Longitude float32 `json:"longitude"`
 }
 
 type Reply struct {
@@ -58,17 +58,17 @@ type Reply struct {
 }
 
 type ReplyMessage struct {
-	Type               string `json:"type"`
-	Text               string `json:"text"`
-	OriginalContentUrl string `json:"originalContentUrl"`
-	PreviewImageUrl    string `json:"previewImageUrl"`
-	PackageId          string `json:"packageId"`
-	StickerId          string `json:"stickerId"`
-	Duration           string `json:"duration"`
-	Title              string `json:"title"`
-	Address            string `json:"address"`
-	Latitude           string `json:"latitude"`
-	Longitude          string `json:"longitude"`
+	Type               string  `json:"type"`
+	Text               string  `json:"text"`
+	OriginalContentUrl string  `json:"originalContentUrl"`
+	PreviewImageUrl    string  `json:"previewImageUrl"`
+	PackageId          string  `json:"packageId"`
+	StickerId          string  `json:"stickerId"`
+	Duration           string  `json:"duration"`
+	Title              string  `json:"title"`
+	Address            string  `json:"address"`
+	Latitude           float32 `json:"latitude"`
+	Longitude          float32 `json:"longitude"`
 }
 
 // This function checks to see if the number of files in the images directory is less than the max number.
@@ -376,8 +376,8 @@ func ReplyToMessage(replyToken string, m Message) {
 		log.Println("Message Type: " + m.Type)
 		log.Println("Title: " + m.Title)
 		log.Println("Address: " + m.Address)
-		log.Println("Latitude: " + m.Latitude)
-		log.Println("Longitude: " + m.Longitude)
+		log.Println("Latitude: ", m.Latitude)
+		log.Println("Longitude: ", m.Longitude)
 
 		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
