@@ -52,23 +52,46 @@ type Message struct {
 	Longitude float32 `json:"longitude"`
 }
 
+type ImagemapArea struct {
+	X      int32 `json:"x"`
+	Y      int32 `json:"y"`
+	Width  int32 `json:"width"`
+	Height int32 `json:"height"`
+}
+
+type ImagemapActions struct {
+	Type    string       `json:"type"`
+	Text    string       `json:"type"`
+	LinkUri string       `json:"linkUrl"`
+	Area    ImagemapArea `json:"area"`
+}
+
+type ImagemapBaseSize struct {
+	Height int32 `json:"height"`
+	Width  int32 `json:"width"`
+}
+
 type Reply struct {
 	SendReplyToken string         `json:"replyToken"`
 	Messages       []ReplyMessage `json:"messages"`
 }
 
 type ReplyMessage struct {
-	Type               string  `json:"type"`
-	Text               string  `json:"text"`
-	OriginalContentUrl string  `json:"originalContentUrl"`
-	PreviewImageUrl    string  `json:"previewImageUrl"`
-	PackageId          string  `json:"packageId"`
-	StickerId          string  `json:"stickerId"`
-	Duration           string  `json:"duration"`
-	Title              string  `json:"title"`
-	Address            string  `json:"address"`
-	Latitude           float32 `json:"latitude"`
-	Longitude          float32 `json:"longitude"`
+	Type               string            `json:"type"`
+	Text               string            `json:"text"`
+	OriginalContentUrl string            `json:"originalContentUrl"`
+	PreviewImageUrl    string            `json:"previewImageUrl"`
+	PackageId          string            `json:"packageId"`
+	StickerId          string            `json:"stickerId"`
+	Duration           string            `json:"duration"`
+	Title              string            `json:"title"`
+	Address            string            `json:"address"`
+	Latitude           float32           `json:"latitude"`
+	Longitude          float32           `json:"longitude"`
+	BaseUrl            string            `json:"baseUrl"`
+	AltText            string            `json:"altText"`
+	BaseSize           ImagemapBaseSize  `json:"baseSize"`
+	Actions            []ImagemapActions `json:"actions"`
 }
 
 // This function checks to see if the number of files in the images directory is less than the max number.
@@ -254,6 +277,33 @@ func CreatePreviewImage(originalFileName string) string {
 	jpeg.Encode(previewImageFile, resizedImage, nil)
 
 	return previewImageFileName
+
+}
+
+func SendImageMap(replyToken string) {
+
+	zone1 := ImagemapActions{
+		Type:    "uri",
+		LinkUri: "http://www.explodingkittens.com/",
+		Area:    ImagemapArea{X: 100, Y: 106, Width: 575, Height: 1060},
+	}
+
+	zone2 := ImagemapActions{
+		Type: "message",
+		Text: "ZOMBIES!!",
+		Area: ImagemapArea{X: 100, Y: 106, Width: 575, Height: 1060},
+	}
+
+	replyMessage := ReplyMessage{
+
+		Type:     "imagemap",
+		BaseUrl:  "https://line-bot-test-app-v2.herokuapp.com/images/imagemap",
+		AltText:  "This is an imagemap",
+		BaseSize: ImagemapBaseSize{Height: 636, Width: 1040},
+		Actions:  []ImagemapActions{zone1, zone2},
+	}
+
+	SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
 }
 
@@ -464,7 +514,14 @@ func ProcessMessageEvent(e Event) {
 		log.Fatalln("error unmarshalling message: ", err)
 	}
 
-	ReplyToMessage(e.ReplyToken, m)
+	if m.Text == "Imagemap" {
+
+		SendImageMap(e.ReplyToken)
+
+	} else {
+
+		ReplyToMessage(e.ReplyToken, m)
+	}
 
 }
 
