@@ -282,26 +282,26 @@ func CreatePreviewImage(originalFileName string) string {
 
 func SendImageMap(replyToken string) {
 
-	/*
-		zone1 := ImagemapActions{
-			Type:    "uri",
-			LinkUri: "http://www.explodingkittens.com/",
-			Area:    ImagemapArea{X: 47, Y: 54, Width: 293, Height: 528},
-		}
-	*/
-	zone2 := ImagemapActions{
-		Type: "message",
-		Text: "ZOMBIES!!",
-		Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
+	zone1 := ImagemapActions{
+		Type:    "uri",
+		LinkUri: "http://www.explodingkittens.com/",
+		Area:    ImagemapArea{X: 47, Y: 54, Width: 293, Height: 528},
 	}
 
+	/*
+		zone2 := ImagemapActions{
+			Type: "message",
+			Text: "ZOMBIES!!",
+			Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
+		}
+	*/
 	replyMessage := ReplyMessage{
 
 		Type:     "imagemap",
 		BaseUrl:  "https://line-bot-test-app-v2.herokuapp.com/images/imagemap",
 		AltText:  "This is an imagemap",
 		BaseSize: ImagemapBaseSize{Height: 636, Width: 1040},
-		Actions:  []ImagemapActions{zone2},
+		Actions:  []ImagemapActions{zone1},
 	}
 
 	SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
