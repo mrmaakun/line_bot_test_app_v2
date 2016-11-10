@@ -61,7 +61,7 @@ type ImagemapArea struct {
 
 type ImagemapActions struct {
 	Type    string       `json:"type"`
-	Text    string       `json:"type"`
+	Text    string       `json:"text"`
 	LinkUri string       `json:"linkUrl"`
 	Area    ImagemapArea `json:"area"`
 }
