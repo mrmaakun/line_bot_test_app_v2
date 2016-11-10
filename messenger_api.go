@@ -288,12 +288,13 @@ func SendImageMap(replyToken string) {
 		Area:    ImagemapArea{X: 47, Y: 54, Width: 293, Height: 528},
 	}
 
-	zone2 := ImagemapActions{
-		Type: "message",
-		Text: "ZOMBIES!!",
-		Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
-	}
-
+	/*
+		zone2 := ImagemapActions{
+			Type: "message",
+			Text: "ZOMBIES!!",
+			Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
+		}
+	*/
 	replyMessage := ReplyMessage{
 
 		Type:     "imagemap",
