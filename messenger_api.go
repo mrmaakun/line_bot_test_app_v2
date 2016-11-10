@@ -46,6 +46,10 @@ type Message struct {
 	Text      string `json:"text"`
 	PackageId string `json:"packageId"`
 	StickerId string `json:"stickerId"`
+	Title     string `json:"title"`
+	Address   string `json:"address"`
+	Latitude  string `json:"latitude"`
+	Longitude string `json:"longitude"`
 }
 
 type Reply struct {
@@ -61,6 +65,10 @@ type ReplyMessage struct {
 	PackageId          string `json:"packageId"`
 	StickerId          string `json:"stickerId"`
 	Duration           string `json:"duration"`
+	Title              string `json:"title"`
+	Address            string `json:"address"`
+	Latitude           string `json:"latitude"`
+	Longitude          string `json:"longitude"`
 }
 
 // This function checks to see if the number of files in the images directory is less than the max number.
@@ -355,6 +363,24 @@ func ReplyToMessage(replyToken string, m Message) {
 
 		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+	case "location":
+
+		replyMessage := ReplyMessage{
+			Type:      m.Type,
+			Title:     m.Title,
+			Address:   m.Address,
+			Latitude:  m.Latitude,
+			Longitude: m.Longitude,
+		}
+
+		log.Println("Message Type: " + m.Type)
+		log.Println("Title: " + m.Title)
+		log.Println("Address: " + m.Address)
+		log.Println("Latitude: " + m.Latitude)
+		log.Println("Longitude: " + m.Longitude)
+
+		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+
 	}
 
 }
@@ -365,7 +391,7 @@ func ProcessFollowEvent(e Event) {
 	log.Println("Processing Follow Event")
 
 	replyMessage1 := ReplyMessage{
-		Text: "Hi, " + GetProfile(e.Source.UserId).DisplayName + "!!",
+		Text: "Hi, " + GetProfile(e.Source.GroupId).DisplayName + "!!",
 		Type: "text",
 	}
 
@@ -390,7 +416,7 @@ func ProcessJoinEvent(e Event) {
 	log.Println("Processing Join Event")
 
 	replyMessage1 := ReplyMessage{
-		Text: "Hi, " + GetProfile(e.Source.UserId).DisplayName + "!!",
+		Text: "Hello everybody!",
 		Type: "text",
 	}
 
