@@ -328,6 +328,12 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 	req.Header.Set("Content-Type", "application/json")
 
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(req.Body)
+	s := buf.String()
+
+	log.Println("Json Req:" + s)
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
