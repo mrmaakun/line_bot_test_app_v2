@@ -285,13 +285,13 @@ func SendImageMap(replyToken string) {
 	zone1 := ImagemapActions{
 		Type:    "uri",
 		LinkUri: "http://www.explodingkittens.com/",
-		Area:    ImagemapArea{X: 100, Y: 106, Width: 575, Height: 1060},
+		Area:    ImagemapArea{X: 47, Y: 54, Width: 293, Height: 528},
 	}
 
 	zone2 := ImagemapActions{
 		Type: "message",
 		Text: "ZOMBIES!!",
-		Area: ImagemapArea{X: 1100, Y: 104, Width: 575, Height: 1060},
+		Area: ImagemapArea{X: 549, Y: 49, Width: 575, Height: 1060},
 	}
 
 	replyMessage := ReplyMessage{
