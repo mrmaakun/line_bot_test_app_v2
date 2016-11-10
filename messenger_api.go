@@ -499,6 +499,47 @@ func ProcessLeaveEvent(e Event) {
 
 }
 
+func LeaveGroupOrRoom(leaveType string, Id string) {
+
+	var url string
+
+	// Set the API url based on the type of group/room that is being left
+	switch leaveType {
+
+	case "room":
+
+		url = "https://api.line-beta.me/v2/bot/room/" + Id + "/leave"
+
+	case "group":
+
+		url = "https://api.line-beta.me/v2/bot/group/" + Id + "/leave"
+
+	default:
+
+		panic(fmt.Sprintf("%s", "Calling LeaveGroupOrRoom on invalid leaveType!"))
+
+	}
+
+	var jsonPayload []byte = nil
+	var err error
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+	log.Println("Response Status:", resp.Status)
+	log.Println("Response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println("Response Body:", string(body))
+
+}
+
 // Function to handle all message events
 func ProcessMessageEvent(e Event) {
 
@@ -514,6 +555,7 @@ func ProcessMessageEvent(e Event) {
 		log.Fatalln("error unmarshalling message: ", err)
 	}
 
+	// Image Map
 	if m.Text == "Imagemap" {
 
 		SendImageMap(e.ReplyToken)
@@ -521,6 +563,22 @@ func ProcessMessageEvent(e Event) {
 	} else {
 
 		ReplyToMessage(e.ReplyToken, m)
+	}
+
+	// Leave API
+	if m.Text == "Goodbye" {
+
+		switch e.Source.Type {
+
+		case "room":
+
+			LeaveGroupOrRoom(e.Source.Type, e.Source.RoomId)
+
+		case "group":
+
+			LeaveGroupOrRoom(e.Source.Type, e.Source.GroupId)
+
+		}
 	}
 
 }
