@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -92,6 +93,21 @@ type ReplyMessage struct {
 	AltText            string            `json:"altText"`
 	BaseSize           ImagemapBaseSize  `json:"baseSize"`
 	Actions            []ImagemapActions `json:"actions"`
+}
+
+type TemplateAction struct {
+	Type  string `json:"type"`
+	Label string `json:"label"`
+	Data  string `json:"data"`
+	Text  string `json:"text"`
+	Uri   string `json:"uri"`
+}
+
+type Column struct {
+	ThumbnailImageUrl string           `json:"thumbnailImageUrl"`
+	Title             string           `json:"title"`
+	Text              string           `json:"text"`
+	Actions           []TemplateAction `json:"actions"`
 }
 
 // This function checks to see if the number of files in the images directory is less than the max number.
@@ -556,7 +572,7 @@ func ProcessMessageEvent(e Event) {
 	}
 
 	// Image Map
-	if m.Text == "Imagemap" {
+	if strings.Contains(strings.ToLower(m.Text), "imagemap") {
 
 		SendImageMap(e.ReplyToken)
 
@@ -566,7 +582,7 @@ func ProcessMessageEvent(e Event) {
 	}
 
 	// Leave API
-	if m.Text == "Goodbye" {
+	if strings.Contains(strings.ToLower(m.Text), "goodbye") {
 
 		switch e.Source.Type {
 
@@ -579,6 +595,27 @@ func ProcessMessageEvent(e Event) {
 			LeaveGroupOrRoom(e.Source.Type, e.Source.GroupId)
 
 		}
+	}
+
+	// Carousel API
+	if strings.Contains(strings.ToLower(m.Text), "carousel") {
+
+		// Implement Carousel API
+
+	}
+
+	// Confirm Dialog API
+	if strings.Contains(strings.ToLower(m.Text), "confirm dialogue") {
+
+		// Implement Confirm Dialogue
+
+	}
+
+	// Buttons Dialog API
+	if strings.Contains(strings.ToLower(m.Text), "buttons dialogue") {
+
+		// Implement Buttons Dialogue
+
 	}
 
 }
