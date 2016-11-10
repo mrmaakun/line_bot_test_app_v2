@@ -62,7 +62,7 @@ type ImagemapArea struct {
 type ImagemapActions struct {
 	Type    string       `json:"type"`
 	Text    string       `json:"text"`
-	LinkUri string       `json:"linkUrl"`
+	LinkUri string       `json:"linkUri"`
 	Area    ImagemapArea `json:"area"`
 }
 
@@ -288,20 +288,19 @@ func SendImageMap(replyToken string) {
 		Area:    ImagemapArea{X: 47, Y: 54, Width: 293, Height: 528},
 	}
 
-	/*
-		zone2 := ImagemapActions{
-			Type: "message",
-			Text: "ZOMBIES!!",
-			Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
-		}
-	*/
+	zone2 := ImagemapActions{
+		Type: "message",
+		Text: "ZOMBIES!!",
+		Area: ImagemapArea{X: 549, Y: 49, Width: 293, Height: 528},
+	}
+
 	replyMessage := ReplyMessage{
 
 		Type:     "imagemap",
 		BaseUrl:  "https://line-bot-test-app-v2.herokuapp.com/images/imagemap",
 		AltText:  "This is an imagemap",
 		BaseSize: ImagemapBaseSize{Height: 636, Width: 1040},
-		Actions:  []ImagemapActions{zone1},
+		Actions:  []ImagemapActions{zone1, zone2},
 	}
 
 	SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
@@ -327,12 +326,6 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
 	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
 	req.Header.Set("Content-Type", "application/json")
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(req.Body)
-	s := buf.String()
-
-	log.Println("Json Req:" + s)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
