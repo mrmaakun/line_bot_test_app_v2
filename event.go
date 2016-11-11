@@ -3,8 +3,21 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math/rand"
 	"strings"
+	"time"
 )
+
+type Source struct {
+	Type    string `json:"type"`
+	UserId  string `json:"userid"`
+	GroupId string `json:"groupId"`
+	RoomId  string `json:"roomId"`
+}
+
+type Postback struct {
+	Data string `json:"data"`
+}
 
 type Event struct {
 	ReplyToken string          `json:"replyToken"`
@@ -12,7 +25,58 @@ type Event struct {
 	Timestamp  int64           `json:"timestamp"`
 	Source     Source          `json:"source"`
 	Message    json.RawMessage `json:"message"`
-	Postback   json.RawMessage `json:"postback"`
+	Postback   Postback        `json:"postback"`
+}
+
+// Function that handles postback events
+func ProcessPostbackEvent(e Event) {
+
+	if e.Postback.Data == "run" {
+
+		rand.Seed((time.Now().UTC().UnixNano()))
+
+		coinFlip := rand.Intn(1)
+
+		if coinFlip == 0 {
+
+			replyMessage1 := ReplyMessage{
+				Text: "I got your run postback... and your were able to escape!!",
+				Type: "text",
+			}
+
+			// TODO: Put this url in config file
+			image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/run.jpg"
+			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage("static/run.jpg")
+
+			replyMessage2 := ReplyMessage{
+				Type:               "image",
+				OriginalContentUrl: image_url,
+				PreviewImageUrl:    preview_image_url,
+			}
+
+			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+
+		} else {
+			replyMessage1 := ReplyMessage{
+				Text: "I got your run postback... and the zombie got you! Now you must EXPLODE!",
+				Type: "text",
+			}
+
+			// TODO: Put this url in config file
+			image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/explode.jpg"
+			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage("static/explode.jpg")
+
+			replyMessage2 := ReplyMessage{
+				Type:               "image",
+				OriginalContentUrl: image_url,
+				PreviewImageUrl:    preview_image_url,
+			}
+
+			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+
+		}
+
+	}
 }
 
 // Function to handle follow events
@@ -132,13 +196,13 @@ func ProcessMessageEvent(e Event) {
 	}
 
 	// Buttons Dialog API
-	if strings.Contains(strings.ToLower(m.Text), "buttons dialogue") {
+	if strings.Contains(strings.ToLower(m.Text), "find zombie") {
 
 		templateAction1 := TemplateAction{
 			Type:  "postback",
 			Label: "Run!",
 			Data:  "run",
-			Text:  "Attempting to run!",
+			Text:  "I'm outta here!!",
 		}
 
 		templateAction2 := TemplateAction{

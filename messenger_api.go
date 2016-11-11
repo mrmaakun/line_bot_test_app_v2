@@ -11,13 +11,6 @@ import (
 	"os"
 )
 
-type Source struct {
-	Type    string `json:"type"`
-	UserId  string `json:"userid"`
-	GroupId string `json:"groupId"`
-	RoomId  string `json:"roomId"`
-}
-
 type Message struct {
 	Id        string  `json:"id"`
 	Type      string  `json:"type"`
