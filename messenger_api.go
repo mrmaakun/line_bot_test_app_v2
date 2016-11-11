@@ -46,7 +46,7 @@ type ReplyMessage struct {
 	AltText            string            `json:"altText"`
 	BaseSize           ImagemapBaseSize  `json:"baseSize"`
 	Actions            []ImagemapActions `json:"actions"`
-	Template
+	Template           Template          `json:"template"`
 }
 
 // Create a preview image from the original image
