@@ -19,6 +19,8 @@ func CleanImageDirectory() {
 	//Get a slice of files in the images directory
 	files, _ := ioutil.ReadDir("images")
 
+	//Debug statement
+
 	numberOfStoredImages := len(files)
 
 	// TODO: Change the max number of stored images to a config item
@@ -28,6 +30,11 @@ func CleanImageDirectory() {
 		var earliestModifiedFileName string
 
 		for _, f := range files {
+
+			// Ignore file if it is a directory
+			if f.IsDir() == true {
+				continue
+			}
 
 			// If this is the first element, set it as the earliest one
 			if earliestModifiedFileName == "" {

@@ -137,7 +137,41 @@ func ProcessMessageEvent(e Event) {
 	// Buttons Dialog API
 	if strings.Contains(strings.ToLower(m.Text), "buttons dialogue") {
 
-		// Implement Buttons Dialogue
+		templateAction1 := TemplateAction{
+			Type:  "postback",
+			Label: "Run!",
+			Data:  "run",
+		}
+
+		templateAction2 := TemplateAction{
+			Type:  "message",
+			Label: "Scream!",
+			Text:  "AHHHHHH!",
+		}
+
+		templateAction3 := TemplateAction{
+			Type:  "uri",
+			Label: "EXPLODE!",
+			Uri:   "https://line-bot-test-app-v2.herokuapp.com/images/explode.jpg",
+		}
+
+		templateActions := []TemplateAction{templateAction1, templateAction2, templateAction3}
+
+		template := Template{
+			Type:              "buttons",
+			ThumbnailImageUrl: "images/static/zombiemessage.jpg",
+			Title:             "You have encountered a ZOMBIE!!",
+			Text:              "What do you do?!?",
+			Actions:           templateActions,
+		}
+
+		buttonMessage := ReplyMessage{
+			AltText:  "This is a buttons template",
+			Type:     "template",
+			Template: template,
+		}
+
+		SendReplyMessage(e.ReplyToken, []ReplyMessage{buttonMessage})
 
 	}
 

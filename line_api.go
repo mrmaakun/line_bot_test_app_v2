@@ -10,6 +10,14 @@ import (
 	"os"
 )
 
+type Template struct {
+	Type              string           `json:"type"`
+	ThumbnailImageUrl string           `json:"thumbnailImageUrl"`
+	Title             string           `json:"menu"`
+	Text              string           `json:"text"`
+	Actions           []TemplateAction `json:"actions"`
+}
+
 type TemplateAction struct {
 	Type  string `json:"type"`
 	Label string `json:"label"`
