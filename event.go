@@ -138,7 +138,7 @@ func ProcessMessageEvent(e Event) {
 			Type:  "postback",
 			Label: "Run!",
 			Data:  "run",
-			Text: "Attempting to run!"
+			Text:  "Attempting to run!",
 		}
 
 		templateAction2 := TemplateAction{
