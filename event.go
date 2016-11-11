@@ -138,6 +138,7 @@ func ProcessMessageEvent(e Event) {
 			Type:  "postback",
 			Label: "Run!",
 			Data:  "run",
+			Text: "Attempting to run!"
 		}
 
 		templateAction2 := TemplateAction{
@@ -149,14 +150,14 @@ func ProcessMessageEvent(e Event) {
 		templateAction3 := TemplateAction{
 			Type:  "uri",
 			Label: "EXPLODE!",
-			Uri:   "https://line-bot-test-app-v2.herokuapp.com/images/explode.jpg",
+			Uri:   "https://line-bot-test-app-v2.herokuapp.com/images/static/explode.jpg",
 		}
 
 		templateActions := []TemplateAction{templateAction1, templateAction2, templateAction3}
 
 		template := Template{
 			Type:              "buttons",
-			ThumbnailImageUrl: "images/static/zombiemessage.jpg",
+			ThumbnailImageUrl: "https://line-bot-test-app-v2.herokuapp.com/images/static/zombiemessage.jpg",
 			Title:             "You have encountered a ZOMBIE!!",
 			Text:              "What do you do?!?",
 			Actions:           templateActions,
