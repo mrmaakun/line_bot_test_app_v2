@@ -99,9 +99,6 @@ func ProcessMessageEvent(e Event) {
 
 		SendImageMap(e.ReplyToken)
 
-	} else {
-
-		ReplyToMessage(e.ReplyToken, m)
 	}
 
 	// Leave API
