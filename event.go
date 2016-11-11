@@ -31,6 +31,9 @@ type Event struct {
 // Function that handles postback events
 func ProcessPostbackEvent(e Event) {
 
+	log.Println("Processing Postback Event")
+	log.Println("Postback Data: " + e.Postback.Data)
+
 	if e.Postback.Data == "run" {
 
 		rand.Seed((time.Now().UTC().UnixNano()))

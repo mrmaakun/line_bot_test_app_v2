@@ -207,7 +207,10 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 			ProcessJoinEvent(*event)
 		case "leave":
 			ProcessLeaveEvent(*event)
+		case "postback":
+			ProcessPostbackEvent(*event)
 		default:
+			log.Println("Caught invalid event type!")
 		}
 	}
 
