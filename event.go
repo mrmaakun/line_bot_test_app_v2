@@ -253,6 +253,8 @@ func ProcessMessageEvent(e Event) {
 	// Buttons Dialog API
 	if strings.Contains(strings.ToLower(m.Text), "find zombie") {
 
+		log.Println("Processing zombie event")
+
 		templateAction1 := TemplateAction{
 			Type:  "postback",
 			Label: "Run!",
