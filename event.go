@@ -229,6 +229,7 @@ func ProcessMessageEvent(e Event) {
 			Type:  "postback",
 			Label: "NO!",
 			Data:  "noexplode",
+			Text:  "",
 		}
 
 		templateActions := []TemplateAction{templateAction1, templateAction2}
