@@ -162,6 +162,7 @@ func ProcessMessageEvent(e Event) {
 	if strings.Contains(strings.ToLower(m.Text), "imagemap") {
 
 		SendImageMap(e.ReplyToken)
+		return
 
 	}
 
@@ -179,6 +180,8 @@ func ProcessMessageEvent(e Event) {
 			LeaveGroupOrRoom(e.Source.Type, e.Source.GroupId)
 
 		}
+
+		return
 	}
 
 	// Carousel API
@@ -234,7 +237,10 @@ func ProcessMessageEvent(e Event) {
 		}
 
 		SendReplyMessage(e.ReplyToken, []ReplyMessage{buttonMessage})
+		return
 
 	}
+
+	ReplyToMessage(e.ReplyToken, m)
 
 }
