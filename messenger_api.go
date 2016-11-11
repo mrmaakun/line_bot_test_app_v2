@@ -3,9 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nfnt/resize"
-	"image"
-	"image/jpeg"
 	"log"
 	"net/http"
 	"os"

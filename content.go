@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/nfnt/resize"
+	"image"
+	"image/jpeg"
 	"io"
 	"io/ioutil"
 	"log"
