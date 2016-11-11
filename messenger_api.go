@@ -42,36 +42,6 @@ type ReplyMessage struct {
 	Template           Template          `json:"template"`
 }
 
-// Create a preview image from the original image
-func CreatePreviewImage(originalFileName string) string {
-
-	// Open File
-	file, err := os.Open("images/" + originalFileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	//Read Image
-	image, _, err := image.Decode(file)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Image Read")
-
-	previewImageFileName := "p_" + originalFileName
-
-	previewImageFile, err := os.Create("images/" + previewImageFileName)
-
-	//Resize image
-	resizedImage := resize.Resize(240, 240, image, resize.Lanczos3)
-
-	jpeg.Encode(previewImageFile, resizedImage, nil)
-
-	return previewImageFileName
-
-}
-
 func ReplyToMessage(replyToken string, m Message) {
 
 	// Make Reply API Request
