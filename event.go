@@ -34,7 +34,9 @@ func ProcessPostbackEvent(e Event) {
 	log.Println("Processing Postback Event")
 	log.Println("Postback Data: " + e.Postback.Data)
 
-	if e.Postback.Data == "run" {
+	switch e.Postback.Data {
+
+	case "run":
 
 		rand.Seed((time.Now().UTC().UnixNano()))
 
@@ -81,6 +83,21 @@ func ProcessPostbackEvent(e Event) {
 			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
 
 		}
+
+	case "noexplode":
+
+		replyMessage1 := ReplyMessage{
+			Text: "I got a postback saying that you do not want to explode... and I think you are a coward!",
+			Type: "text",
+		}
+
+		replyMessage2 := ReplyMessage{
+			Type:      "sticker",
+			StickerId: "527",
+			PackageId: "2",
+		}
+
+		SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
 
 	}
 }
@@ -198,9 +215,36 @@ func ProcessMessageEvent(e Event) {
 	}
 
 	// Confirm Dialog API
-	if strings.Contains(strings.ToLower(m.Text), "confirm dialogue") {
+	if strings.Contains(strings.ToLower(m.Text), "I want to explode") {
 
-		// Implement Confirm Dialogue
+		templateAction1 := TemplateAction{
+			Type:  "uri",
+			Label: "YES!",
+			Uri:   "https://line-bot-test-app-v2.herokuapp.com/images/static/explode.jpg",
+		}
+
+		templateAction2 := TemplateAction{
+			Type:  "postback",
+			Label: "NO!",
+			Data:  "noexplode",
+		}
+
+		templateActions := []TemplateAction{templateAction1, templateAction2}
+
+		template := Template{
+			Type:    "confirm",
+			Text:    "Are you SURE you want to explode?",
+			Actions: templateActions,
+		}
+
+		confirmMessage := ReplyMessage{
+			AltText:  "This is a confirm template",
+			Type:     "template",
+			Template: template,
+		}
+
+		SendReplyMessage(e.ReplyToken, []ReplyMessage{confirmMessage})
+		return
 
 	}
 
@@ -247,6 +291,6 @@ func ProcessMessageEvent(e Event) {
 
 	}
 
-	ReplyToMessage(e.ReplyToken, m)
+	//	ReplyToMessage(e.ReplyToken, m)
 
 }
