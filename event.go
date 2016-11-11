@@ -217,6 +217,8 @@ func ProcessMessageEvent(e Event) {
 	// Confirm Dialog API
 	if strings.Contains(strings.ToLower(m.Text), "I want to explode") {
 
+		log.Println("Processing explode event")
+
 		templateAction1 := TemplateAction{
 			Type:  "uri",
 			Label: "YES!",
