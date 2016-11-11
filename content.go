@@ -11,6 +11,37 @@ import (
 	"time"
 )
 
+// Create a preview image from the original image
+// TODO: Make this method work for the static images too
+func CreatePreviewImage(originalFileName string) string {
+
+	// Open File
+	file, err := os.Open("images/" + originalFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Read Image
+	image, _, err := image.Decode(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Image Read")
+
+	previewImageFileName := "p_" + originalFileName
+
+	previewImageFile, err := os.Create("images/" + previewImageFileName)
+
+	//Resize image
+	resizedImage := resize.Resize(240, 240, image, resize.Lanczos3)
+
+	jpeg.Encode(previewImageFile, resizedImage, nil)
+
+	return previewImageFileName
+
+}
+
 // This function checks to see if the number of files in the images directory is less than the max number.
 // If it is, it deletes the oldest image
 

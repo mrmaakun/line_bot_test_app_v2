@@ -38,9 +38,11 @@ func ProcessPostbackEvent(e Event) {
 
 		rand.Seed((time.Now().UTC().UnixNano()))
 
-		coinFlip := rand.Intn(1)
+		coinFlip := rand.Intn(100000)
 
-		if coinFlip == 0 {
+		log.Println("Coin flip number: ", coinFlip)
+
+		if coinFlip%2 == 0 {
 
 			replyMessage1 := ReplyMessage{
 				Text: "I got your run postback... and your were able to escape!!",
@@ -49,7 +51,7 @@ func ProcessPostbackEvent(e Event) {
 
 			// TODO: Put this url in config file
 			image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/run.jpg"
-			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage("static/run.jpg")
+			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/p_run.jpg"
 
 			replyMessage2 := ReplyMessage{
 				Type:               "image",
@@ -60,6 +62,7 @@ func ProcessPostbackEvent(e Event) {
 			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
 
 		} else {
+
 			replyMessage1 := ReplyMessage{
 				Text: "I got your run postback... and the zombie got you! Now you must EXPLODE!",
 				Type: "text",
@@ -67,7 +70,7 @@ func ProcessPostbackEvent(e Event) {
 
 			// TODO: Put this url in config file
 			image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/explode.jpg"
-			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage("static/explode.jpg")
+			preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/static/p_explode.jpg"
 
 			replyMessage2 := ReplyMessage{
 				Type:               "image",
