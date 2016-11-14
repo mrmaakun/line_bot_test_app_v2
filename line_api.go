@@ -105,6 +105,8 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
 
 	jsonPayload, err = json.Marshal(reply)
 
+	log.Printf("SendReplyMessage(): Request JSON: " + string(jsonPayload))
+
 	//Make reply message
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
