@@ -29,7 +29,7 @@ type Event struct {
 }
 
 // Function that handles postback events
-func ProcessPostbackEvent(e Event) {
+func ProcessPostbackEvent(e Event) error {
 
 	log.Println("Processing Postback Event")
 	log.Println("Postback Data: " + e.Postback.Data)
@@ -61,7 +61,13 @@ func ProcessPostbackEvent(e Event) {
 				PreviewImageUrl:    preview_image_url,
 			}
 
-			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+			err := SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
 
 		} else {
 
@@ -80,7 +86,13 @@ func ProcessPostbackEvent(e Event) {
 				PreviewImageUrl:    preview_image_url,
 			}
 
-			SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+			err := SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+
+			if err != nil {
+				return err
+			}
+
+			return nil
 
 		}
 
@@ -97,13 +109,21 @@ func ProcessPostbackEvent(e Event) {
 			PackageId: "2",
 		}
 
-		SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+		err := SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
+
+	return nil
 }
 
 // Function to handle follow events
-func ProcessFollowEvent(e Event) {
+func ProcessFollowEvent(e Event) error {
 
 	log.Println("Processing Follow Event")
 
@@ -123,12 +143,18 @@ func ProcessFollowEvent(e Event) {
 		PackageId: "2",
 	}
 
-	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
+	err := SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
 // Function to handle follow events
-func ProcessJoinEvent(e Event) {
+func ProcessJoinEvent(e Event) error {
 
 	log.Println("Processing Join Event")
 
@@ -148,7 +174,13 @@ func ProcessJoinEvent(e Event) {
 		PackageId: "2",
 	}
 
-	SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
+	err := SendReplyMessage(e.ReplyToken, []ReplyMessage{replyMessage1, replyMessage2, replyMessage3})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -167,7 +199,7 @@ func ProcessLeaveEvent(e Event) {
 }
 
 // Function to handle all message events
-func ProcessMessageEvent(e Event) {
+func ProcessMessageEvent(e Event) error {
 
 	var m Message
 
@@ -184,27 +216,45 @@ func ProcessMessageEvent(e Event) {
 	// Image Map
 	if strings.Contains(strings.ToLower(m.Text), "imagemap") {
 
-		SendImageMap(e.ReplyToken)
-		return
+		err := SendImageMap(e.ReplyToken)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
 
 	// Leave API
 	if strings.Contains(strings.ToLower(m.Text), "goodbye") {
 
+		var err error
+
 		switch e.Source.Type {
 
 		case "room":
 
-			LeaveGroupOrRoom(e.Source.Type, e.Source.RoomId)
+			err = LeaveGroupOrRoom(e.Source.Type, e.Source.RoomId)
 
 		case "group":
 
-			LeaveGroupOrRoom(e.Source.Type, e.Source.GroupId)
+			err = LeaveGroupOrRoom(e.Source.Type, e.Source.GroupId)
+
+		default:
+
+			err = &APIError{
+				Code:     500,
+				Response: "Invalid Source Type",
+			}
 
 		}
 
-		return
+		if err != nil {
+			return err
+		} else {
+			return nil
+		}
 	}
 
 	// Carousel API
@@ -245,8 +295,13 @@ func ProcessMessageEvent(e Event) {
 			Template: template,
 		}
 
-		SendReplyMessage(e.ReplyToken, []ReplyMessage{confirmMessage})
-		return
+		err := SendReplyMessage(e.ReplyToken, []ReplyMessage{confirmMessage})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
 
@@ -290,8 +345,13 @@ func ProcessMessageEvent(e Event) {
 			Template: template,
 		}
 
-		SendReplyMessage(e.ReplyToken, []ReplyMessage{buttonMessage})
-		return
+		err := SendReplyMessage(e.ReplyToken, []ReplyMessage{buttonMessage})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
 
@@ -360,11 +420,18 @@ func ProcessMessageEvent(e Event) {
 			Template: template,
 		}
 
-		SendReplyMessage(e.ReplyToken, []ReplyMessage{carouselMessage})
-		return
+		err := SendReplyMessage(e.ReplyToken, []ReplyMessage{carouselMessage})
+
+		if err != nil {
+			return err
+		}
+
+		return nil
 
 	}
 
 	//	ReplyToMessage(e.ReplyToken, m)
+
+	return nil
 
 }

@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -39,7 +43,7 @@ type ReplyMessage struct {
 	Template           Template          `json:"template,omitempty"`
 }
 
-func ReplyToMessage(replyToken string, m Message) {
+func ReplyToMessage(replyToken string, m Message) error {
 
 	// Make Reply API Request
 
@@ -52,7 +56,11 @@ func ReplyToMessage(replyToken string, m Message) {
 			Type: m.Type,
 		}
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+
+		if err != nil {
+			return err
+		}
 
 	case "image":
 
@@ -67,8 +75,11 @@ func ReplyToMessage(replyToken string, m Message) {
 			PreviewImageUrl:    preview_image_url,
 		}
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+		if err != nil {
+			return err
+		}
 	case "video":
 
 		videoPath := GetContent(m.Type, m.Id)
@@ -82,8 +93,11 @@ func ReplyToMessage(replyToken string, m Message) {
 			PreviewImageUrl:    preview_image_url,
 		}
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+		if err != nil {
+			return err
+		}
 	case "audio":
 
 		audioPath := GetContent(m.Type, m.Id)
@@ -96,8 +110,11 @@ func ReplyToMessage(replyToken string, m Message) {
 			Duration:           "240000",
 		}
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+		if err != nil {
+			return err
+		}
 	case "sticker":
 
 		replyMessage := ReplyMessage{
@@ -109,8 +126,11 @@ func ReplyToMessage(replyToken string, m Message) {
 		log.Println("PackageId: " + m.PackageId)
 		log.Println("Stickerid: " + m.StickerId)
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+		if err != nil {
+			return err
+		}
 	case "location":
 
 		replyMessage := ReplyMessage{
@@ -127,10 +147,24 @@ func ReplyToMessage(replyToken string, m Message) {
 		log.Println("Latitude: ", m.Latitude)
 		log.Println("Longitude: ", m.Longitude)
 
-		SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+		err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+
+		if err != nil {
+			return err
+		}
 
 	}
 
+	return nil
+
+}
+
+func CheckMAC(message, messageMAC, key []byte) bool {
+
+	mac := hmac.New(sha256.New, key)
+	mac.Write(message)
+	expectedMAC := mac.Sum(nil)
+	return hmac.Equal(messageMAC, expectedMAC)
 }
 
 func APIPathHandler(w http.ResponseWriter, r *http.Request) {
@@ -138,21 +172,43 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("This is the Default Path Handler")
 	log.Println("Entered the default Path Handler")
 
-	//Convert io.ReadCloser to String
+	// Verify Request Signature
 
-	//	buf := new(bytes.Buffer)
-	//	buf.ReadFrom(r.Body)
-	//	requestString := buf.String()
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
 
-	//	log.Println("Request Body: \n" + requestString)
+	if err != nil {
+		http.Error(w, "Failed to read the response body: "+err.Error(), http.StatusInternalServerError)
+	}
 
-	decoder := json.NewDecoder(r.Body)
+	if os.Getenv("SKIP_SIGNATURE_VERIFICATION") != "TRUE" {
+
+		decoded_signature, err := base64.StdEncoding.DecodeString(r.Header.Get("X-Line-Signature"))
+
+		if err != nil {
+			http.Error(w, "Failed to read the response body: "+err.Error(), http.StatusInternalServerError)
+
+		}
+
+		channel_secret := os.Getenv("LINE_CHANNEL_SECRET")
+
+		mac := hmac.New(sha256.New, []byte(channel_secret))
+		mac.Write(body)
+		mac.Sum(nil)
+
+		if CheckMAC(body, decoded_signature, []byte(channel_secret)) == false {
+
+			http.Error(w, "Message Authentication Failed", http.StatusUnauthorized)
+			return
+		}
+
+	}
 
 	request := &struct {
 		Events []*Event `json:"events"`
 	}{}
 
-	err := decoder.Decode(&request)
+	err = json.Unmarshal(body, &request)
 
 	if err != nil {
 		panic(err)
@@ -165,19 +221,27 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch event.Type {
 		case "message":
-			ProcessMessageEvent(*event)
+			err = ProcessMessageEvent(*event)
 		case "follow":
-			ProcessFollowEvent(*event)
+			err = ProcessFollowEvent(*event)
 		case "unfollow":
 			ProcessUnfollowEvent(*event)
 		case "join":
-			ProcessJoinEvent(*event)
+			err = ProcessJoinEvent(*event)
 		case "leave":
 			ProcessLeaveEvent(*event)
 		case "postback":
-			ProcessPostbackEvent(*event)
+			err = ProcessPostbackEvent(*event)
 		default:
 			log.Println("Caught invalid event type!")
+			err = &APIError{
+				Code:     500,
+				Response: "Caught invalid event type: " + event.Type,
+			}
+		}
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 

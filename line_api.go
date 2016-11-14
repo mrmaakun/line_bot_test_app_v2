@@ -65,7 +65,7 @@ type ImagemapBaseSize struct {
 	Width  int32 `json:"width,omitempty"`
 }
 
-func SendImageMap(replyToken string) {
+func SendImageMap(replyToken string) error {
 
 	zone1 := ImagemapActions{
 		Type:    "uri",
@@ -88,11 +88,16 @@ func SendImageMap(replyToken string) {
 		Actions:  []ImagemapActions{zone1, zone2},
 	}
 
-	SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
+	err := SendReplyMessage(replyToken, []ReplyMessage{replyMessage})
 
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
+func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) error {
 
 	url := "https://api.line-beta.me/v2/bot/message/reply"
 
@@ -126,9 +131,19 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) {
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println("Response Body:", string(body))
 
+	if resp.StatusCode != http.StatusOK {
+
+		return &APIError{
+			Code:     resp.StatusCode,
+			Response: string(body),
+		}
+	}
+
+	return nil
+
 }
 
-func LeaveGroupOrRoom(leaveType string, Id string) {
+func LeaveGroupOrRoom(leaveType string, Id string) error {
 
 	var url string
 
@@ -166,6 +181,17 @@ func LeaveGroupOrRoom(leaveType string, Id string) {
 	log.Println("Response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
 	log.Println("Response Body:", string(body))
+
+	if resp.StatusCode != http.StatusOK {
+
+		return &APIError{
+
+			Code:     resp.StatusCode,
+			Response: string(body),
+		}
+	}
+
+	return nil
 
 }
 
