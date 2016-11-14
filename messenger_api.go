@@ -9,34 +9,34 @@ import (
 )
 
 type Message struct {
-	Id        string  `json:"id"`
-	Type      string  `json:"type"`
-	Text      string  `json:"text"`
-	PackageId string  `json:"packageId"`
-	StickerId string  `json:"stickerId"`
-	Title     string  `json:"title"`
-	Address   string  `json:"address"`
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
+	Id        string  `json:"id,omitempty"`
+	Type      string  `json:"type,omitempty"`
+	Text      string  `json:"text,omitempty"`
+	PackageId string  `json:"packageId,omitempty"`
+	StickerId string  `json:"stickerId,omitempty"`
+	Title     string  `json:"title,omitempty"`
+	Address   string  `json:"address,omitempty"`
+	Latitude  float32 `json:"latitude,omitempty"`
+	Longitude float32 `json:"longitude,omitempty"`
 }
 
 type ReplyMessage struct {
-	Type               string            `json:"type"`
-	Text               string            `json:"text"`
-	OriginalContentUrl string            `json:"originalContentUrl"`
-	PreviewImageUrl    string            `json:"previewImageUrl"`
-	PackageId          string            `json:"packageId"`
-	StickerId          string            `json:"stickerId"`
-	Duration           string            `json:"duration"`
-	Title              string            `json:"title"`
-	Address            string            `json:"address"`
-	Latitude           float32           `json:"latitude"`
-	Longitude          float32           `json:"longitude"`
-	BaseUrl            string            `json:"baseUrl"`
-	AltText            string            `json:"altText"`
-	BaseSize           ImagemapBaseSize  `json:"baseSize"`
-	Actions            []ImagemapActions `json:"actions"`
-	Template           Template          `json:"template"`
+	Type               string            `json:"type,omitempty"`
+	Text               string            `json:"text,omitempty"`
+	OriginalContentUrl string            `json:"originalContentUrl,omitempty"`
+	PreviewImageUrl    string            `json:"previewImageUrl,omitempty"`
+	PackageId          string            `json:"packageId,omitempty"`
+	StickerId          string            `json:"stickerId,omitempty"`
+	Duration           string            `json:"duration,omitempty"`
+	Title              string            `json:"title,omitempty"`
+	Address            string            `json:"address,omitempty"`
+	Latitude           float32           `json:"latitude,omitempty"`
+	Longitude          float32           `json:"longitude,omitempty"`
+	BaseUrl            string            `json:"baseUrl,omitempty"`
+	AltText            string            `json:"altText,omitempty"`
+	BaseSize           ImagemapBaseSize  `json:"baseSize,omitempty"`
+	Actions            []ImagemapActions `json:"actions,omitempty"`
+	Template           Template          `json:"template,omitempty"`
 }
 
 func ReplyToMessage(replyToken string, m Message) {

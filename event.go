@@ -9,23 +9,23 @@ import (
 )
 
 type Source struct {
-	Type    string `json:"type"`
-	UserId  string `json:"userid"`
-	GroupId string `json:"groupId"`
-	RoomId  string `json:"roomId"`
+	Type    string `json:"type,omitempty"`
+	UserId  string `json:"userid,omitempty"`
+	GroupId string `json:"groupId,omitempty"`
+	RoomId  string `json:"roomId,omitempty"`
 }
 
 type Postback struct {
-	Data string `json:"data"`
+	Data string `json:"data,omitempty"`
 }
 
 type Event struct {
-	ReplyToken string          `json:"replyToken"`
-	Type       string          `json:"type"`
-	Timestamp  int64           `json:"timestamp"`
-	Source     Source          `json:"source"`
-	Message    json.RawMessage `json:"message"`
-	Postback   Postback        `json:"postback"`
+	ReplyToken string          `json:"replyToken,omitempty"`
+	Type       string          `json:"type,omitempty"`
+	Timestamp  int64           `json:"timestamp,omitempty"`
+	Source     Source          `json:"source,omitempty"`
+	Message    json.RawMessage `json:"message,omitempty"`
+	Postback   Postback        `json:"postback,omitempty"`
 }
 
 // Function that handles postback events

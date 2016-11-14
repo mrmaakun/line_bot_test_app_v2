@@ -11,57 +11,57 @@ import (
 )
 
 type Template struct {
-	Type              string           `json:"type"`
-	ThumbnailImageUrl string           `json:"thumbnailImageUrl"`
-	Title             string           `json:"menu"`
-	Text              string           `json:"text"`
-	Actions           []TemplateAction `json:"actions"`
+	Type              string           `json:"type,omitempty"`
+	ThumbnailImageUrl string           `json:"thumbnailImageUrl,omitempty"`
+	Title             string           `json:"menu,omitempty"`
+	Text              string           `json:"text,omitempty"`
+	Actions           []TemplateAction `json:"actions,omitempty"`
 }
 
 type TemplateAction struct {
-	Type  string `json:"type"`
-	Label string `json:"label"`
-	Data  string `json:"data"`
-	Text  string `json:"text"`
-	Uri   string `json:"uri"`
+	Type  string `json:"type,omitempty"`
+	Label string `json:"label,omitempty"`
+	Data  string `json:"data,omitempty"`
+	Text  string `json:"text,omitempty"`
+	Uri   string `json:"uri,omitempty"`
 }
 
 type Column struct {
-	ThumbnailImageUrl string           `json:"thumbnailImageUrl"`
-	Title             string           `json:"title"`
-	Text              string           `json:"text"`
-	Actions           []TemplateAction `json:"actions"`
+	ThumbnailImageUrl string           `json:"thumbnailImageUrl,omitempty"`
+	Title             string           `json:"title,omitempty"`
+	Text              string           `json:"text,omitempty"`
+	Actions           []TemplateAction `json:"actions,omitempty"`
 }
 
 type Reply struct {
-	SendReplyToken string         `json:"replyToken"`
-	Messages       []ReplyMessage `json:"messages"`
+	SendReplyToken string         `json:"replyToken,omitempty"`
+	Messages       []ReplyMessage `json:"messages,omitempty"`
 }
 
 type Profile struct {
-	DisplayName   string `json:"displayName"`
-	UserId        string `json:"userId"`
-	PictureUrl    string `json:"pictureUrl"`
-	StatusMessage string `json:"statusMessage"`
+	DisplayName   string `json:"displayName,omitempty"`
+	UserId        string `json:"userId,omitempty"`
+	PictureUrl    string `json:"pictureUrl,omitempty"`
+	StatusMessage string `json:"statusMessage,omitempty"`
 }
 
 type ImagemapArea struct {
-	X      int32 `json:"x"`
-	Y      int32 `json:"y"`
-	Width  int32 `json:"width"`
-	Height int32 `json:"height"`
+	X      int32 `json:"x,omitempty"`
+	Y      int32 `json:"y,omitempty"`
+	Width  int32 `json:"width,omitempty"`
+	Height int32 `json:"height,omitempty"`
 }
 
 type ImagemapActions struct {
-	Type    string       `json:"type"`
-	Text    string       `json:"text"`
-	LinkUri string       `json:"linkUri"`
-	Area    ImagemapArea `json:"area"`
+	Type    string       `json:"type,omitempty"`
+	Text    string       `json:"text,omitempty"`
+	LinkUri string       `json:"linkUri,omitempty"`
+	Area    ImagemapArea `json:"area,omitempty"`
 }
 
 type ImagemapBaseSize struct {
-	Height int32 `json:"height"`
-	Width  int32 `json:"width"`
+	Height int32 `json:"height,omitempty"`
+	Width  int32 `json:"width,omitempty"`
 }
 
 func SendImageMap(replyToken string) {
