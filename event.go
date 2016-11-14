@@ -276,6 +276,12 @@ func ProcessMessageEvent(e Event) error {
 			Text: "This is a PUSH Message! I am not using your reply token at all.",
 		}
 
+		message2 := ReplyMessage{
+			Type:      "sticker",
+			StickerId: "19",
+			PackageId: "2",
+		}
+
 		var toId string = e.Source.UserId
 
 		switch e.Source.Type {
@@ -287,7 +293,7 @@ func ProcessMessageEvent(e Event) error {
 
 		}
 
-		SendPushMessage([]ReplyMessage{message1}, toId)
+		SendPushMessage([]ReplyMessage{message1, message2}, toId)
 
 	}
 
