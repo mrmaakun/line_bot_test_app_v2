@@ -198,10 +198,18 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 
 		if CheckMAC(body, decoded_signature, []byte(channel_secret)) == false {
 
-			http.Error(w, "Message Authentication Failed", http.StatusUnauthorized)
+			log.Println("ERROR: Message Verification Has Failed.")
+			http.Error(w, "ERROR: Message Authentication Failed", http.StatusUnauthorized)
 			return
+		} else {
+
+			log.Println("ERROR: Message Verification Has Succeeded")
+
 		}
 
+	} else {
+
+		log.Println("Bot is set to bypass Signature Verification")
 	}
 
 	request := &struct {
