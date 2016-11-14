@@ -203,6 +203,16 @@ func ProcessMessageEvent(e Event) error {
 
 	var m Message
 
+	log.Println("Entered ProcessMessageEvent")
+
+	err := json.Unmarshal(e.Message, &m)
+
+	log.Println("Finished Unmarshall")
+
+	if err != nil {
+		log.Fatalln("error unmarshalling message: ", err)
+	}
+
 	log.Println("Message Information is as follows: ")
 	log.Println("Id: " + m.Id)
 	log.Println("Type: " + m.Type)
@@ -213,16 +223,6 @@ func ProcessMessageEvent(e Event) error {
 	log.Println("Address: " + m.Address)
 	log.Println("Latitude: ", m.Latitude)
 	log.Println("Longitude: ", m.Longitude)
-
-	log.Println("Entered ProcessMessageEvent")
-
-	err := json.Unmarshal(e.Message, &m)
-
-	log.Println("Finished Unmarshall")
-
-	if err != nil {
-		log.Fatalln("error unmarshalling message: ", err)
-	}
 
 	// Image Map
 	if strings.Contains(strings.ToLower(m.Text), "imagemap") {
