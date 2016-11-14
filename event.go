@@ -295,6 +295,76 @@ func ProcessMessageEvent(e Event) {
 
 	}
 
+	// Carousel Dialog API
+	if strings.Contains(strings.ToLower(m.Text), "multizombie") {
+
+		log.Println("Processing Multizombie Event")
+
+		templateAction1 := TemplateAction{
+			Type:  "postback",
+			Label: "Run!",
+			Data:  "run",
+			Text:  "I'm outta here!!",
+		}
+
+		templateAction2 := TemplateAction{
+			Type:  "message",
+			Label: "Scream!",
+			Text:  "AHHHHHH!",
+		}
+
+		templateAction3 := TemplateAction{
+			Type:  "uri",
+			Label: "EXPLODE!",
+			Uri:   "https://line-bot-test-app-v2.herokuapp.com/images/static/explode.jpg",
+		}
+
+		templateActions := []TemplateAction{templateAction1, templateAction2, templateAction3}
+
+		column1 := Column{
+			ThumbnailImageUrl: "https://line-bot-test-app-v2.herokuapp.com/images/static/zombiemessage.jpg",
+			Title:             "Zombie 1",
+			Text:              "You have encoutered Zombie 1!",
+			Actions:           templateActions,
+		}
+
+		column2 := Column{
+			ThumbnailImageUrl: "https://line-bot-test-app-v2.herokuapp.com/images/static/zombiemessage.jpg",
+			Title:             "Zombie 2",
+			Text:              "You have encoutered Zombie 2!",
+			Actions:           templateActions,
+		}
+
+		column3 := Column{
+			ThumbnailImageUrl: "https://line-bot-test-app-v2.herokuapp.com/images/static/zombiemessage.jpg",
+			Title:             "Zombie 3",
+			Text:              "You have encoutered Zombie 3!",
+			Actions:           templateActions,
+		}
+
+		//Declare Columns Array
+		columns := []Column{column1, column2, column3}
+
+		template := Template{
+			Type:              "carousel",
+			ThumbnailImageUrl: "https://line-bot-test-app-v2.herokuapp.com/images/static/zombiemessage.jpg",
+			Title:             "You have encountered a ZOMBIE!!",
+			Text:              "What do you do?!?",
+			Actions:           templateActions,
+			Columns:           columns,
+		}
+
+		carouselMessage := ReplyMessage{
+			AltText:  "This is a Carousel template",
+			Type:     "template",
+			Template: template,
+		}
+
+		SendReplyMessage(e.ReplyToken, []ReplyMessage{carouselMessage})
+		return
+
+	}
+
 	//	ReplyToMessage(e.ReplyToken, m)
 
 }
