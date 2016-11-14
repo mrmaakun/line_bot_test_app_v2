@@ -101,7 +101,14 @@ func GetContent(mediaType string, mediaId string) string {
 
 	client := &http.Client{}
 	rand.Seed((time.Now().UTC().UnixNano()))
-	url := "https://api.line-beta.me/v2/bot/message/" + mediaId + "/content"
+
+	url := alphaApiEndpoint + "v2/bot/message/" + mediaId + "/content"
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		url = realApiEndpoint + "v2/bot/message/" + mediaId + "/content"
+
+	}
 
 	switch mediaType {
 

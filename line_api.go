@@ -104,7 +104,13 @@ func SendImageMap(replyToken string) error {
 
 func SendPushMessage(messages []ReplyMessage, toId string) error {
 
-	url := "https://api.line-beta.me/v2/bot/message/push"
+	url := alphaApiEndpoint + "message/push"
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		url = realApiEndpoint + "message/push"
+
+	}
 
 	var jsonPayload []byte = nil
 	var err error
@@ -119,7 +125,17 @@ func SendPushMessage(messages []ReplyMessage, toId string) error {
 	log.Printf("SendPushMessage(): Request JSON: " + string(jsonPayload))
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("REAL_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	} else {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BETA_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -148,7 +164,13 @@ func SendPushMessage(messages []ReplyMessage, toId string) error {
 
 func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) error {
 
-	url := "https://api.line-beta.me/v2/bot/message/reply"
+	url := alphaApiEndpoint + "message/reply"
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		url = realApiEndpoint + "message/reply"
+
+	}
 
 	var jsonPayload []byte = nil
 	var err error
@@ -165,7 +187,15 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) error {
 	//Make reply message
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("REAL_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	} else {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BETA_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -194,18 +224,26 @@ func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) error {
 
 func LeaveGroupOrRoom(leaveType string, Id string) error {
 
-	var url string
+	var url, endpoint string
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		endpoint = realApiEndpoint
+
+	} else {
+		endpoint = alphaApiEndpoint
+	}
 
 	// Set the API url based on the type of group/room that is being left
 	switch leaveType {
 
 	case "room":
 
-		url = "https://api.line-beta.me/v2/bot/room/" + Id + "/leave"
+		url = endpoint + "room/" + Id + "/leave"
 
 	case "group":
 
-		url = "https://api.line-beta.me/v2/bot/group/" + Id + "/leave"
+		url = endpoint + "group/" + Id + "/leave"
 
 	default:
 
@@ -217,8 +255,15 @@ func LeaveGroupOrRoom(leaveType string, Id string) error {
 	var err error
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
 
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("REAL_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	} else {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BETA_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -248,10 +293,25 @@ func GetProfile(userId string) Profile {
 
 	client := &http.Client{}
 
-	url := "https://api.line-beta.me/v2/bot/profile/" + userId
+	url := alphaApiEndpoint + "v2/bot/profile/"
+
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		url = realApiEndpoint + "v2/bot/profile/"
+
+	}
 
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("REAL_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	} else {
+
+		req.Header.Set("Authorization", "Bearer "+os.Getenv("BETA_LINE_CHANNEL_ACCESS_TOKEN"))
+
+	}
+
 	resp, err := client.Do(req)
 
 	if err != nil {

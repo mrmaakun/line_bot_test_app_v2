@@ -12,6 +12,11 @@ import (
 	"os"
 )
 
+const alphaApiEndpoint string = "https://api.line-beta.me/v2/bot/"
+const realApiEndpoint string = "https://api.line.me/v2/bot/"
+const defaultMaxStoredImages int32 = 30
+const defaultBotEndpoint string = "https://line-bot-test-app-v2.herokuapp.com/"
+
 type Message struct {
 	Id        string  `json:"id,omitempty"`
 	Type      string  `json:"type,omitempty"`
@@ -66,8 +71,8 @@ func ReplyToMessage(replyToken string, m Message) error {
 
 		// TODO: Put this url in config file
 		imagePath := GetContent(m.Type, m.Id)
-		image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + imagePath
-		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + CreatePreviewImage(imagePath)
+		image_url := defaultBotEndpoint + "images/" + imagePath
+		preview_image_url := defaultBotEndpoint + "images/" + CreatePreviewImage(imagePath)
 
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
@@ -83,8 +88,8 @@ func ReplyToMessage(replyToken string, m Message) error {
 	case "video":
 
 		videoPath := GetContent(m.Type, m.Id)
-		video_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + videoPath
-		preview_image_url := "https://line-bot-test-app-v2.herokuapp.com/images/video_thumbnail.jpg"
+		video_url := defaultBotEndpoint + "images/" + videoPath
+		preview_image_url := defaultBotEndpoint + "images/video_thumbnail.jpg"
 
 		replyMessage := ReplyMessage{
 
@@ -101,7 +106,7 @@ func ReplyToMessage(replyToken string, m Message) error {
 	case "audio":
 
 		audioPath := GetContent(m.Type, m.Id)
-		audio_url := "https://line-bot-test-app-v2.herokuapp.com/images/" + audioPath
+		audio_url := defaultBotEndpoint + "images/" + audioPath
 
 		replyMessage := ReplyMessage{
 
@@ -190,7 +195,16 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 
 		}
 
-		channel_secret := os.Getenv("LINE_CHANNEL_SECRET")
+		var channel_secret string
+
+		if os.Getenv("USE_REAL_ENVIRONMENT") == "TRUE" {
+
+			channel_secret = os.Getenv("REAL_LINE_CHANNEL_SECRET")
+		} else {
+
+			channel_secret = os.Getenv("BETA_LINE_CHANNEL_SECRET")
+
+		}
 
 		mac := hmac.New(sha256.New, []byte(channel_secret))
 		mac.Write(body)
