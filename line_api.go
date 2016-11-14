@@ -16,7 +16,7 @@ type Template struct {
 	Title             string           `json:"menu,omitempty"`
 	Text              string           `json:"text,omitempty"`
 	Actions           []TemplateAction `json:"actions,omitempty"`
-	Columns           []Column         `json:"actions,omitempty"`
+	Columns           []Column         `json:"columns,omitempty"`
 }
 
 type TemplateAction struct {
