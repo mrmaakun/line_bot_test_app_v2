@@ -203,6 +203,17 @@ func ProcessMessageEvent(e Event) error {
 
 	var m Message
 
+	log.Println("Message Information is as follows: ")
+	log.Println("Id: " + m.Id)
+	log.Println("Type: " + m.Type)
+	log.Println("Text: " + m.Text)
+	log.Println("PackageId: " + m.PackageId)
+	log.Println("StickerId: " + m.StickerId)
+	log.Println("Title: " + m.Title)
+	log.Println("Address: " + m.Address)
+	log.Println("Latitude: ", m.Latitude)
+	log.Println("Longitude: ", m.Longitude)
+
 	log.Println("Entered ProcessMessageEvent")
 
 	err := json.Unmarshal(e.Message, &m)
@@ -257,10 +268,26 @@ func ProcessMessageEvent(e Event) error {
 		}
 	}
 
-	// Carousel API
-	if strings.Contains(strings.ToLower(m.Text), "carousel") {
+	// Push Message API
+	if strings.Contains(strings.ToLower(m.Text), "push") {
 
-		// Implement Carousel API
+		message1 := ReplyMessage{
+			Type: "text",
+			Text: "This is a PUSH Message! I am not using your reply token at all.",
+		}
+
+		var toId string = e.Source.UserId
+
+		switch e.Source.Type {
+
+		case "group":
+			toId = e.Source.GroupId
+		case "room":
+			toId = e.Source.RoomId
+
+		}
+
+		SendPushMessage([]ReplyMessage{message1}, toId)
 
 	}
 

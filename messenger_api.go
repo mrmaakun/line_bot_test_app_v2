@@ -203,7 +203,7 @@ func APIPathHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		} else {
 
-			log.Println("ERROR: Message Verification Has Succeeded")
+			log.Println("Message Verification Has Succeeded")
 
 		}
 

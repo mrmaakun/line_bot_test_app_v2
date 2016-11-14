@@ -65,6 +65,11 @@ type ImagemapBaseSize struct {
 	Width  int32 `json:"width,omitempty"`
 }
 
+type PushMessage struct {
+	ToId     string         `json:"to"`
+	Messages []ReplyMessage `json:"messages"`
+}
+
 func SendImageMap(replyToken string) error {
 
 	zone1 := ImagemapActions{
@@ -95,6 +100,50 @@ func SendImageMap(replyToken string) error {
 	}
 
 	return nil
+}
+
+func SendPushMessage(messages []ReplyMessage, toId string) error {
+
+	url := "https://api.line-beta.me/v2/bot/message/push"
+
+	var jsonPayload []byte = nil
+	var err error
+
+	pushMessage := PushMessage{
+		ToId:     toId,
+		Messages: messages,
+	}
+
+	jsonPayload, err = json.Marshal(pushMessage)
+
+	log.Printf("SendPushMessage(): Request JSON: " + string(jsonPayload))
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonPayload))
+	req.Header.Set("Authorization", "Bearer "+os.Getenv("LINE_CHANNEL_ACCESS_TOKEN"))
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
+
+	defer resp.Body.Close()
+	log.Println("Response Status:", resp.Status)
+	log.Println("Response Headers:", resp.Header)
+	body, _ := ioutil.ReadAll(resp.Body)
+	log.Println("Response Body:", string(body))
+
+	if resp.StatusCode != http.StatusOK {
+
+		return &APIError{
+			Code:     resp.StatusCode,
+			Response: string(body),
+		}
+	}
+
+	return nil
+
 }
 
 func SendReplyMessage(replyToken string, replyMessages []ReplyMessage) error {
