@@ -52,8 +52,8 @@ func ProcessPostbackEvent(e Event) error {
 			}
 
 			// TODO: Put this url in config file
-			image_url := defaultBotEndpoint + "images/static/run.jpg"
-			preview_image_url := defaultBotEndpoint + "images/static/p_run.jpg"
+			image_url := os.Getenv("BOT_HOST") + "images/static/run.jpg"
+			preview_image_url := os.Getenv("BOT_HOST") + "images/static/p_run.jpg"
 
 			replyMessage2 := ReplyMessage{
 				Type:               "image",
@@ -77,8 +77,8 @@ func ProcessPostbackEvent(e Event) error {
 			}
 
 			// TODO: Put this url in config file
-			image_url := defaultBotEndpoint + "images/static/explode.jpg"
-			preview_image_url := defaultBotEndpoint + "images/static/p_explode.jpg"
+			image_url := os.Getenv("BOT_HOST") + "images/static/explode.jpg"
+			preview_image_url := os.Getenv("BOT_HOST") + "images/static/p_explode.jpg"
 
 			replyMessage2 := ReplyMessage{
 				Type:               "image",

@@ -15,7 +15,6 @@ import (
 const alphaApiEndpoint string = "https://api.line-beta.me/v2/bot/"
 const realApiEndpoint string = "https://api.line.me/v2/bot/"
 const defaultMaxStoredImages int32 = 30
-const defaultBotEndpoint string = "https://line-bot-test-app-v2.herokuapp.com/"
 
 type Message struct {
 	Id        string  `json:"id,omitempty"`
@@ -71,8 +70,8 @@ func ReplyToMessage(replyToken string, m Message) error {
 
 		// TODO: Put this url in config file
 		imagePath := GetContent(m.Type, m.Id)
-		image_url := defaultBotEndpoint + "images/" + imagePath
-		preview_image_url := defaultBotEndpoint + "images/" + CreatePreviewImage(imagePath)
+		image_url := os.Getenv("BOT_HOST") + "images/" + imagePath
+		preview_image_url := os.Getenv("BOT_HOST") + "images/" + CreatePreviewImage(imagePath)
 
 		replyMessage := ReplyMessage{
 			Type:               m.Type,
@@ -88,8 +87,8 @@ func ReplyToMessage(replyToken string, m Message) error {
 	case "video":
 
 		videoPath := GetContent(m.Type, m.Id)
-		video_url := defaultBotEndpoint + "images/" + videoPath
-		preview_image_url := defaultBotEndpoint + "images/video_thumbnail.jpg"
+		video_url := os.Getenv("BOT_HOST") + "images/" + videoPath
+		preview_image_url := os.Getenv("BOT_HOST") + "images/video_thumbnail.jpg"
 
 		replyMessage := ReplyMessage{
 
@@ -106,7 +105,7 @@ func ReplyToMessage(replyToken string, m Message) error {
 	case "audio":
 
 		audioPath := GetContent(m.Type, m.Id)
-		audio_url := defaultBotEndpoint + "images/" + audioPath
+		audio_url := os.Getenv("BOT_HOST") + "images/" + audioPath
 
 		replyMessage := ReplyMessage{
 
